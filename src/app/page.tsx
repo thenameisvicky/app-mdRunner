@@ -46,18 +46,6 @@ export default function Home() {
     setSelectedNote(null);
   };
 
-  const handleSaveNote = (updatedNote: Note) => {
-    // Update the note in the list
-    setAllMarkDowns(prevNotes => 
-      prevNotes.map(note => 
-        note.slug === updatedNote.slug ? updatedNote : note
-      )
-    );
-    // Update the selected note if it's the same one
-    if (selectedNote && selectedNote.slug === updatedNote.slug) {
-      setSelectedNote(updatedNote);
-    }
-  };
 
   if (loading) {
     return (
@@ -109,7 +97,6 @@ export default function Home() {
         note={selectedNote}
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        onSave={handleSaveNote}
       />
     </div>
   );

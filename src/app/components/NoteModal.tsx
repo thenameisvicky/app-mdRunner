@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect } from "react";
 import { marked } from "marked";
 
 type Note = {
@@ -13,90 +13,17 @@ type NoteModalProps = {
   note: Note | null;
   isOpen: boolean;
   onClose: () => void;
-  onSave?: (updatedNote: Note) => void;
 };
 
 export default function NoteModal({
   note,
   isOpen,
   onClose,
-  onSave,
 }: NoteModalProps) {
-  const [editedContent, setEditedContent] = useState("");
-  const [editedTitle, setEditedTitle] = useState("");
-  const [isSaving, setIsSaving] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-
-  // Initialize content when note changes
-  useEffect(() => {
-    if (note) {
-      setEditedContent(note.content);
-      setEditedTitle(note.frontmatter.title || note.slug);
-      setIsEditing(false);
-    }
-  }, [note]);
-
-  const handleSave = useCallback(async () => {
-    if (!note) return;
-
-    setIsSaving(true);
-    try {
-      const response = await fetch(`/api/notes/${note.slug}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          slug: note.slug,
-          content: editedContent,
-          frontmatter: {
-            ...note.frontmatter,
-            title: editedTitle,
-          },
-        }),
-      });
-
-      if (response.ok) {
-        setIsEditing(false);
-        // Call the onSave callback to update the parent component
-        if (onSave) {
-          onSave({
-            ...note,
-            content: editedContent,
-            frontmatter: {
-              ...note.frontmatter,
-              title: editedTitle,
-            },
-          });
-        }
-      } else {
-        console.error("Failed to save note");
-        alert("Failed to save note. Please try again.");
-      }
-    } catch (error) {
-      console.error("Error saving note:", error);
-      alert("Error saving note. Please try again.");
-    } finally {
-      setIsSaving(false);
-    }
-  }, [note, editedContent, editedTitle, onSave]);
-
   useEffect(() => {
     const handleKeyboard = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        if (isEditing) {
-          setIsEditing(false);
-        } else {
-          onClose();
-        }
-      }
-
-      // Ctrl+S or Cmd+S to save
-      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
-        e.preventDefault();
-        if (isEditing && !isSaving) {
-          handleSave();
-        }
+        onClose();
       }
     };
 
@@ -109,15 +36,7 @@ export default function NoteModal({
       document.removeEventListener("keydown", handleKeyboard);
       document.body.style.overflow = "unset";
     };
-  }, [isOpen, onClose, isEditing, isSaving, handleSave]);
-
-  const handleCancel = () => {
-    if (note) {
-      setEditedContent(note.content);
-      setEditedTitle(note.frontmatter.title || note.slug);
-    }
-    setIsEditing(false);
-  };
+  }, [isOpen, onClose]);
 
   if (!isOpen || !note) return null;
 
@@ -151,63 +70,11 @@ export default function NoteModal({
           }}
         >
           <div className="flex-1">
-            {isEditing ? (
-              <input
-                type="text"
-                value={editedTitle}
-                onChange={(e) => setEditedTitle(e.target.value)}
-                className="text-2xl font-bold w-full border-none outline-none bg-transparent"
-                style={{ color: "#37352f" }}
-                placeholder="Untitled"
-              />
-            ) : (
-              <h1 className="text-2xl font-bold" style={{ color: "#37352f" }}>
-                {note.frontmatter.filename || note.slug}
-              </h1>
-            )}
+            <h1 className="text-2xl font-bold" style={{ color: "#37352f" }}>
+              {note.frontmatter.title || note.slug}
+            </h1>
           </div>
           <div className="flex items-center gap-2">
-            {isEditing ? (
-              <>
-                <button
-                  onClick={handleSave}
-                  disabled={isSaving}
-                  className="px-3 py-1.5 text-sm font-medium rounded text-white"
-                  style={{
-                    background: isSaving ? "#9b9a97" : "#2383e2",
-                    border: "none",
-                    cursor: isSaving ? "not-allowed" : "pointer",
-                  }}
-                >
-                  {isSaving ? "Saving..." : "Save"}
-                </button>
-                <button
-                  onClick={handleCancel}
-                  disabled={isSaving}
-                  className="px-3 py-1.5 text-sm font-medium rounded"
-                  style={{
-                    background: "#ffffff",
-                    border: "1px solid #e9e9e7",
-                    color: "#37352f",
-                    cursor: isSaving ? "not-allowed" : "pointer",
-                  }}
-                >
-                  Cancel
-                </button>
-              </>
-            ) : (
-              <button
-                onClick={() => setIsEditing(true)}
-                className="px-3 py-1.5 text-sm font-medium rounded text-white"
-                style={{
-                  background: "#2383e2",
-                  border: "none",
-                  cursor: "pointer",
-                }}
-              >
-                Edit
-              </button>
-            )}
             <button
               onClick={onClose}
               className="p-1.5 rounded"
@@ -244,43 +111,23 @@ export default function NoteModal({
             maxHeight: "calc(90vh - 140px)",
           }}
         >
-          {isEditing ? (
-            <textarea
-              value={editedContent}
-              onChange={(e) => setEditedContent(e.target.value)}
-              className="w-full h-full min-h-[400px] resize-none"
-              style={{
-                fontFamily:
-                  'ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, sans-serif',
-                fontSize: "14px",
-                padding: "8px",
-                border: "1px solid #e9e9e7",
-                borderRadius: "3px",
-                background: "#ffffff",
-                color: "#37352f",
-                outline: "none",
-              }}
-              placeholder="Type '/' for commands..."
-            />
-          ) : (
+          <div
+            className="notion-content"
+            style={{
+              color: "#37352f",
+              fontSize: "16px",
+              lineHeight: "1.5",
+              fontFamily:
+                'ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, sans-serif',
+              minHeight: "200px",
+            }}
+          >
             <div
-              className="notion-content"
-              style={{
-                color: "#37352f",
-                fontSize: "16px",
-                lineHeight: "1.5",
-                fontFamily:
-                  'ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, sans-serif',
-                minHeight: "200px",
+              dangerouslySetInnerHTML={{
+                __html: marked(note.content),
               }}
-            >
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: marked(note.content),
-                }}
-              />
-            </div>
-          )}
+            />
+          </div>
         </div>
 
         {/* Footer */}
@@ -293,31 +140,23 @@ export default function NoteModal({
           }}
         >
           <div className="text-sm" style={{ color: "#787774" }}>
-            {isEditing ? (
-              <span>Press Ctrl+S to save</span>
-            ) : (
-              <>
-                {note.frontmatter.date && (
-                  <span>Created: {note.frontmatter.date}</span>
-                )}
-                <span className="ml-4">Press Escape to close</span>
-              </>
+            {note.frontmatter.date && (
+              <span>Created: {note.frontmatter.date}</span>
             )}
+            <span className="ml-4">Press Escape to close</span>
           </div>
-          {!isEditing && (
-            <button
-              onClick={onClose}
-              className="px-3 py-1.5 text-sm font-medium rounded"
-              style={{
-                background: "#ffffff",
-                border: "1px solid #e9e9e7",
-                color: "#37352f",
-                cursor: "pointer",
-              }}
-            >
-              Close
-            </button>
-          )}
+          <button
+            onClick={onClose}
+            className="px-3 py-1.5 text-sm font-medium rounded"
+            style={{
+              background: "#ffffff",
+              border: "1px solid #e9e9e7",
+              color: "#37352f",
+              cursor: "pointer",
+            }}
+          >
+            Close
+          </button>
         </div>
       </div>
     </div>
