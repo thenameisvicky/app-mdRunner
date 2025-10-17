@@ -1,11 +1,23 @@
-import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
 
 const vaultPath = path.join(process.cwd(), 'vault');
 
-export async function GET() {
+function formatDate(date: Date): string {
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+  
+  const month = months[date.getMonth()];
+  const day = date.getDate();
+  const year = date.getFullYear();
+  
+  return `${month} ${day}, ${year}`;
+}
+
+export function getAllNotes() {
   try {
     const files = fs.readdirSync(vaultPath).filter((file) => file.endsWith('.md'));
 
@@ -19,7 +31,13 @@ export async function GET() {
       
       try {
         const parsed = matter(fileContents);
-        frontmatter = parsed.data;
+        // Convert all frontmatter values to strings to avoid Date objects
+        frontmatter = Object.fromEntries(
+          Object.entries(parsed.data).map(([key, value]) => [
+            key, 
+            value instanceof Date ? formatDate(value) : String(value)
+          ])
+        );
         content = parsed.content;
       } catch {
         // If parsing fails, treat the whole file as content
@@ -49,9 +67,9 @@ export async function GET() {
       };
     });
 
-    return NextResponse.json(notes);
+    return notes;
   } catch (error) {
     console.error('Error reading markdown files:', error);
-    return NextResponse.json({ error: 'Failed to read notes' }, { status: 500 });
+    return [];
   }
 }
