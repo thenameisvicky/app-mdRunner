@@ -1,3 +1,8 @@
+---
+title: Foundational SDE Fluency
+date: 2025-07-03
+---
+
 ### Computer science Fundamentals
 - 
 ### Language mastery & Ecosystem

@@ -1,3 +1,8 @@
+---
+title: Leetcode Patterns
+date: 2025-07-03
+---
+
 # Phase 1 - Foundational Patterns
 - Complexities 
     1. O ( 1 ) constant - Always takes same time, does not grow with input size.

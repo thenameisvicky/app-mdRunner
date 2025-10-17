@@ -12,7 +12,7 @@ export default function Home() {
         borderColor: '#e9e9e7',
         padding: '24px'
       }}>
-        <h1 className="text-2xl font-bold" style={{ color: '#37352f' }}>Obsidian Notes</h1>
+        <h1 className="text-2xl font-bold" style={{ color: '#37352f' }}>MD Runner</h1>
         <p className="mt-1" style={{ color: '#787774' }}>Click on any card to view the full content</p>
       </div>
 

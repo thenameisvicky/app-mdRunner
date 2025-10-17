@@ -1,3 +1,8 @@
+---
+title: Design Patterns - Backend
+date: 2025-07-03
+---
+
 ## Mental Model
 
 | Question                                      | Pattern         |

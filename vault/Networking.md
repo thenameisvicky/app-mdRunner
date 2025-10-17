@@ -1,3 +1,8 @@
+---
+title: Networking
+date: 2025-07-03
+---
+
 ## Core Networking Fundamentals
 
 |Layer|Name|What It Handles|Real-World Example|

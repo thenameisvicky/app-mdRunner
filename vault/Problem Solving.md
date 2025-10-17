@@ -1,3 +1,8 @@
+---
+title: Problem Solving
+date: 2025-07-03
+---
+
 ## June 22 2025
 1. Unique travel path with time **Description** - _You are given a list of logs where each entry is `[ personId , locationId , timestamp ]` . A Person can travel to a location only if They have not been there in past `T` minutes. No other person was in that location at exact same time. Write a function that returns total number of valid trips._
 2. Compressed Mirror Array **Description** - _You're given an array of integers. You must return `true` if the array can be compressed into a mirrored structure after removing at most one element. A mirrored structure - `[ 1, 2, 3, 2, 1 ]`._

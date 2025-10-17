@@ -1,3 +1,8 @@
+---
+title: Mongo DB
+date: 2025-07-03
+---
+
 ## The Database
 - #### Introduction
 	 Mongo DB is a document oriented database designed for flexibility, scalability, and ease of development. Instead of tables and rows mongo DB has collections and documents. Documents are stored in BSON format allowing rich, hierarchical data.

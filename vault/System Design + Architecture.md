@@ -1,3 +1,8 @@
+---
+title: System Design + Architecture
+date: 2025-07-03
+---
+
 ## Foundation of System Design
 
 - Load balancers
