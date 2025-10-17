@@ -1,0 +1,12 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="15" fill="#2383e2" stroke="#ffffff" stroke-width="2"/>
+  
+  <!-- Letter O -->
+  <circle cx="16" cy="16" r="6" fill="none" stroke="#ffffff" stroke-width="2.5"/>
+  
+  <!-- Document symbol inside O -->
+  <path d="M13 12h4v2h-4v-2z" fill="#ffffff"/>
+  <path d="M13 15h6v1h-6v-1z" fill="#ffffff"/>
+  <path d="M13 17h4v1h-4v-1z" fill="#ffffff"/>
+</svg>

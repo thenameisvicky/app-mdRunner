@@ -1,0 +1,10 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="32" height="32" rx="6" fill="#2383e2"/>
+  
+  <!-- Letter O -->
+  <circle cx="16" cy="16" r="7" fill="none" stroke="#ffffff" stroke-width="2.5"/>
+  
+  <!-- Star symbol inside O -->
+  <path d="M16 10l1.5 3h3l-2.5 2 1 3-3-2-3 2 1-3-2.5-2h3l1.5-3z" fill="#ffffff"/>
+</svg>
