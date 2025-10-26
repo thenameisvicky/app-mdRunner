@@ -4,8 +4,8 @@ date: 2025-07-03
 ---
 
 ## Home server
-- Starting my cloud journery with a minimal home server setup, scaling later.
 
+- Starting my cloud journery with a minimal home server setup, scaling later.
 
 - Hardware and budget
 - Operating system and base setup

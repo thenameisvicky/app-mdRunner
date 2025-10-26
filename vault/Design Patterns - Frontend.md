@@ -19,28 +19,30 @@ date: 2025-07-03
 | Do you want cross-cutting logic applied cleanly?                    | HOC / Hook Decorators                |
 
 ## Philosophies
-- **Component First** 
+
+- **Component First**
     Break UI into reusable, isolated components. Even a modal, card, or tooltip should be a single unit.
-    
+
 - **Single Responsibility**
     Each component should do one thing. Avoid putting fetch + render + logic into a single file.
-    
+
 - **Composable > Inheritance**
     Compose features (props, hooks, slots), don’t extend base classes.
-    
+
 - **Data Flows Down, Events Bubble Up**
     Keep one-way data flow. Parent passes state; child emits events.
-    
+
 - **State Lives at the Right Level**
     Don’t lift state unnecessarily. Let it live where it’s used, or in a shared hook if global.
-    
+
 - **Configurable & Extendable**
     Good components allow: `className`, `as`, `onClick`, `aria-*`, `disabled`, `variant`.
-    
+
 - **Write Once, Use Everywhere**
     Write UI like a library—build once, use in 10 places with props.
 
 ## Container - Presenter Pattern
+
 - Split the logic from UI.
 - Mostly used in Pages, data-driven components.
 
@@ -57,6 +59,7 @@ function CustomerList({ data, loading }) {
 ```
 
 ## Compound component Pattern
+
 - Parent-child relationship with shared context.
 - Mostly used in Tabs, Accordion, Menu, NavBar, Modal.
 
@@ -96,6 +99,7 @@ function TabPanels({ children }) {
 ```
 
 ## Custom Hooks Pattern
+
 - Encapsulate shared stateful logic.
 - Mostly used in Scroll, Auth, Debounce, MediaQuery, etc.
 
@@ -117,6 +121,7 @@ function Navbar() {
 ```
 
 ## Render Props Pattern
+
 - Passing a function as a child which returns JSX, giving flexible rendering control.
 - When parent component need to give internal state to children.
 
@@ -134,6 +139,7 @@ function Tooltip({ render }) {
 ```
 
 ## Higher-Order Component Pattern ( HOC )
+
 - A function that wraps the component to inject extra behaviour or props.
 - For cross cutting concerns like render only if.
 
@@ -149,6 +155,7 @@ const ProtectedDashboard = withAuth(Dashboard);
 ```
 
 ## Reducer Pattern
+
 - Manage UI state transitions with useReducer like updating store.
 - Used to manage complex UIs with multiple states.
 
@@ -169,6 +176,7 @@ const [state, dispatch] = useReducer(reducer, { status: 'idle' });
 ```
 
 ## Component Composition Pattern
+
 - Building UI by combining small, focused components.
 - Always use this pattern have custom component and reuse them.
 
@@ -192,6 +200,7 @@ function ModalHeader({ title }) {
 ```
 
 ## Facade Pattern
+
 - Simplified interface that abstracts complexity of multiple operations.
 - Used when grouping related services such as toast notification, logging in to kibana, etc..
 
@@ -210,6 +219,7 @@ send('Campaign sent successfully!');
 ```
 
 ## Command Pattern
+
 - Encapsulates UI actions in reusable command objects, enabling, undo/redo or queuing
 - Used when Builder interface like going back to recent changes , undo, redo stuffs.
 
@@ -231,6 +241,7 @@ class AddCardCommand implements Command {
 ```
 
 ## Observer Pattern
+
 - Emit and listen for events across the application decoupled from component hierarchy.
 - Used when Global notifications, custom event busses, decoupled UI.
 

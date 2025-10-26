@@ -16,32 +16,34 @@ date: 2025-07-03
 | Do I need to simplify complex logic?          | Facade          |
 | Do I need to queue/undo/retry actions?        | Command         |
 | Do I want base flow with extensible steps?    | Template Method |
+
 ## Philosophies
+
 - Separation of concerns
-    - Each part of code base should address one concern or functionality.
-    - This makes it easier to debug, maintain and scale.
-    - Keep business logics outside controllers , write logics in a file named modulename.ts in the module folder.
+  - Each part of code base should address one concern or functionality.
+  - This makes it easier to debug, maintain and scale.
+  - Keep business logics outside controllers , write logics in a file named modulename.ts in the module folder.
 - Single Responsibility Principle
-    - A class/module/function should have one reason to change.
-    - usermodule.ts will handle user’s stuffs not other stuffs like export or view strategy or notification things
-    - This keeps the code base clean and easier to extend.
+  - A class/module/function should have one reason to change.
+  - usermodule.ts will handle user’s stuffs not other stuffs like export or view strategy or notification things
+  - This keeps the code base clean and easier to extend.
 - Design for Failure
-    - Assume system will fail, networks, dependencies, services and build.
-    - Have retries for stuffs like queue consumer and only for stuffs that matter the most.
-    - This imporve the code logic and failure free backend.
+  - Assume system will fail, networks, dependencies, services and build.
+  - Have retries for stuffs like queue consumer and only for stuffs that matter the most.
+  - This imporve the code logic and failure free backend.
 - Defensive Programming
-    - Anticipate and Guard against bad inputs, edge cases or unexpected states.
-    - Prevents failure and easy to debug.
+  - Anticipate and Guard against bad inputs, edge cases or unexpected states.
+  - Prevents failure and easy to debug.
 - Don’t Repeat yourself ( DRY )
-    - Avoid duplicate logic or knowledge in multiple places.
-    - Centralise knowledge and makes updates easier.
+  - Avoid duplicate logic or knowledge in multiple places.
+  - Centralise knowledge and makes updates easier.
 - Loggers
-    - Must have loggers and track them easy to reproduce or debug the issue.
+  - Must have loggers and track them easy to reproduce or debug the issue.
 
 ## S.O.L.I.D
 
 - **S** - A Class / Module should have only one reason to change / only one responsibility.
-    
+
     ```Ts
     class User {
       constructor(public name: string, public email: string) {}
@@ -59,9 +61,8 @@ date: 2025-07-03
       }
     }
     ```
-    
+
 - **O** - Software entities should be open for extension, but closed for modification.
-    
 
 ```Ts
 interface DiscountStrategy {
@@ -176,6 +177,7 @@ const app = new App(db);
 ```
 
 ## Strategy Pattern
+
 - Selects different algorithms dynamically.
 - Can use for authenticating different logins , exports , imports, views and so on.
 
@@ -203,6 +205,7 @@ class AuthContext {
 ```
 
 ## Factory Pattern
+
 - Creates different objects types based on inputs.
 - Creating message for clients.
 - Creating notification channels.
@@ -221,6 +224,7 @@ class AlertFactory {
 ```
 
 ## Builder Pattern
+
 - Create Complex objects step by step.
 - Building User Profile for Ai matching / Dynamic Content rendering.
 - Building Summary reports.
@@ -238,6 +242,7 @@ class ProfileBuilder {
 ```
 
 ## Singleton Pattern
+
 - One Global instance across the Application.
 - Can use this to check if all request is validated by the Auth microservice.
 - Can use as logger instance.
@@ -256,6 +261,7 @@ class Logger {
 ```
 
 ## Observer Pattern
+
 - Listen to events inside Application and notifi appropiate services or client.
 - Can used for sending messages among microserivices, establishing a connection share datas, and stuffs.
 - When a class ends, send alerts (email + SMS + dashboard update).
@@ -272,6 +278,7 @@ eventEmitter.on('class.ended', () => {
 ```
 
 ## Adapter Pattern
+
 - Normalize 3rd party integrations in Applications.
 - Used when Integrating stripe, razor pay, chargebee kinda having multiple stream doing same thing.
 - Whatsapp Puppeteer instance or APIs and Whatsmeow.
@@ -288,6 +295,7 @@ class RazorpayAdapter {
 ```
 
 ## Facade Pattern
+
 - Simple API over complex subsystems.
 - Unifying message sending (SMS/WA/Email).
 - Simplified Streaming API for frontend.
@@ -304,6 +312,7 @@ class NotificationFacade {
 ```
 
 ## Command Pattern
+
 - Encapsulate actions as objects for queues and retries.
 - Used in send campaign message jobs.
 - Retry failed webhooks.
@@ -318,6 +327,7 @@ class SendMessageCommand {
 ```
 
 ## Template Method
+
 - Base Algorithm with customizable steps.
 - Email pipeline with custom headers/footers.
 - Subscription plan billing flow.

@@ -14,9 +14,9 @@ date: 2025-07-03
 - CAP Theorem
 - CDN
 
-# Peer - to - Peer
+## Peer - to - Peer
 
-# Cahing in users device
+## Cahing in users device
 
 AI + non AI system design goes here , Normal Systems and AI , RAG MCP tool calling architecture goes here
 
@@ -25,7 +25,7 @@ Books -
 1. Designing Data-Intensive Applications – Martin Kleppmann
 2. Domain-Driven Design - Eric Evans
 
-### Real-World System Designs:
+### Real-World System Designs
 
 - Study open-source billing systems like **Kill Bill**, **Opencell**, or **Zuora's concepts**
 - Look at **Chargebee API docs** and reverse-engineer the design
@@ -74,9 +74,9 @@ Even if it's just for personal use, you’re **training your system design muscl
 ### 🔥 AI Systems
 
 - Dive into open-source:
-    - LangChain
-    - LlamaIndex
-    - Hugging Face Transformers
+  - LangChain
+  - LlamaIndex
+  - Hugging Face Transformers
 - Study **how orchestration works**, not just how to prompt
 
 📘 Learn to build:
