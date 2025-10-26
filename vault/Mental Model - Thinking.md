@@ -9,8 +9,6 @@ date: 2025-10-26
 - Thinking clearly allows you to **solve problems, design systems, make decisions, and create strategies** effectively.  
 - This document shares practical approaches, frameworks, and resources to improve your thinking.  
 
----
-
 ## 1. Principles of Thinking
 
 1. **Understand before acting** – clarify the problem, define goals, and gather constraints.  
@@ -18,8 +16,6 @@ date: 2025-10-26
 3. **Think in layers and abstractions** – from high-level concepts to implementation details.  
 4. **Challenge assumptions** – don’t accept statements at face value.  
 5. **Iterate and reflect** – refine your approach after testing and reflection.  
-
----
 
 ## 2. Problem Solving
 
@@ -37,8 +33,6 @@ date: 2025-10-26
   - Practice small examples in your head.
   - Visualize arrays, sums, or sequences mentally.
 
----
-
 ## 3. Designing Systems
 
 - **Start high-level**: identify core components and responsibilities.  
@@ -46,8 +40,6 @@ date: 2025-10-26
 - **Consider edge cases and failures**: how can things break?  
 - **Iterate**: start simple, improve with feedback.  
 - **Use diagrams**: boxes, arrows, flowcharts, even mentally.
-
----
 
 ## 4. Approaching New Problems
 
@@ -57,8 +49,6 @@ date: 2025-10-26
 - Pick an approach and **test it** quickly.  
 - Refine based on results and feedback.
 
----
-
 ## 5. Learning from Others
 
 - **Understand fully**: explain the approach in your own words.  
@@ -66,8 +56,6 @@ date: 2025-10-26
 - **Visualize**: simulate it on examples.  
 - **Think of alternatives**: could it be solved differently?  
 - **Critique**: strengths, weaknesses, edge cases.
-
----
 
 ## 6. Mental Models
 
@@ -78,8 +66,6 @@ date: 2025-10-26
 - **Probabilistic Thinking** – weigh options based on likelihoods.  
 - **Opportunity Cost** – what are you giving up by choosing X?
 
----
-
 ## 7. Practice Exercises
 
 1. Solve small coding problems **mentally** for 3–5 minutes.  
@@ -89,8 +75,6 @@ date: 2025-10-26
    - What assumptions does it make?
    - What alternative approaches exist?
 4. Reflect daily on decisions: what worked, what failed, what can improve.
-
----
 
 ## 8. Recommended Resources
 
@@ -110,8 +94,6 @@ date: 2025-10-26
   - Charley Mendoza: Mental Models  
   - Ali Abdaal: Thinking & Productivity  
   - 3Blue1Brown: Visualizing Math & Patterns  
-
----
 
 ## Conclusion
 
