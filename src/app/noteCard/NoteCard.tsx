@@ -39,9 +39,6 @@ export default function NoteCard({ note, onClick }: NoteCardProps) {
       <p className="text-lg font-bold mb-3" style={{ color: "#9b9a97" }}>
         {note.frontmatter.title} - {note.frontmatter.date}
       </p>
-      <p className="text-sm mb-3" style={{ color: "#9b9a97" }}>
-        {note.content.slice(0, 230)}...
-      </p>
     </div>
   );
 }
