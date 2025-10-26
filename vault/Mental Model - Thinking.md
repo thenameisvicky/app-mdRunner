@@ -1,5 +1,5 @@
 ---
-title: Mental Model - How to Think
+title: Mental Model - Thinking
 date: 2025-10-26
 ---
 
