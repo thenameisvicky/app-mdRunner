@@ -36,9 +36,6 @@ export default function NoteCard({ note, onClick }: NoteCardProps) {
       <h2 className="text-xl font-bold mb-2" style={{ color: "#37352f" }}>
         {note.frontmatter.filename || note.slug}
       </h2>
-      <p className="text-lg font-bold mb-3" style={{ color: "#9b9a97" }}>
-        {note.frontmatter.title} - {note.frontmatter.date}
-      </p>
     </div>
   );
 }
