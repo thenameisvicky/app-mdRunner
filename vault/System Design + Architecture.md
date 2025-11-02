@@ -223,7 +223,7 @@ Then share those principles with other devs.
 - _System Design Interview_ – Alex Xu
 - _The Art of Scalability_ – Martin L. Abbott
 
-# Fail over mechanisims
+## Fail over mechanisims
 
 - Active - stanfby
 - Active - Active

@@ -1,5 +1,6 @@
 export const STAY_HARD_CHAD = [
-    "Hesitation is defeat. — Isshin Ashina",
+    "Unshaken — Arthur Morgan",
+    "Never Hesitate, Hesitation is defeat. — Isshin Ashina",
     "A true warrior does not flee from death. — Isshin Ashina",
     "A man must be strong to protect what he loves. — Isshin Ashina",
     "Steel your heart, and the blade shall follow. — Isshin Ashina",
