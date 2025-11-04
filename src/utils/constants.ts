@@ -1,4 +1,5 @@
 export const STAY_HARD_CHAD = [
+    "On my path to reach the place where no developer reached",
     "Unshaken — Arthur Morgan",
     "Never Hesitate, Hesitation is defeat. — Isshin Ashina",
     "A true warrior does not flee from death. — Isshin Ashina",
