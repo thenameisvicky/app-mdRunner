@@ -100,5 +100,6 @@ export const STAY_HARD_CHAD = [
     "Greatness demands the price of pain.",
     "Those who master silence, master strength.",
     "You are the weapon — everything else is just steel.",
-    "When you fall, rise sharper than before."
+    "When you fall, rise sharper than before.",
+    "Measure of a man is what he does with his power"
 ];
