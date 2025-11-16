@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { marked } from "marked";
+import Button from "../common/Button";
 
 type Note = {
   slug: string;
@@ -75,15 +76,11 @@ export default function NoteModal({
             </h1>
           </div>
           <div className="flex items-center gap-2">
-            <button
+            <Button
+              variant="icon"
               onClick={onClose}
               className="p-1.5 rounded"
-              style={{
-                background: "#ffffff",
-                border: "1px solid #e9e9e7",
-                color: "#37352f",
-                cursor: "pointer",
-              }}
+              aria-label="Close modal"
             >
               <svg
                 width="16"
@@ -99,7 +96,7 @@ export default function NoteModal({
                   d="M6 18L18 6M6 6l12 12"
                 />
               </svg>
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -145,18 +142,13 @@ export default function NoteModal({
             )}
             <span className="ml-4">Press Escape to close</span>
           </div>
-          <button
+          <Button
+            variant="text"
             onClick={onClose}
             className="px-3 py-1.5 text-sm font-medium rounded"
-            style={{
-              background: "#ffffff",
-              border: "1px solid #e9e9e7",
-              color: "#37352f",
-              cursor: "pointer",
-            }}
           >
             Close
-          </button>
+          </Button>
         </div>
       </div>
     </div>
