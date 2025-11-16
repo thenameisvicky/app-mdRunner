@@ -83,7 +83,7 @@ export default function Tooltip({
     fontSize: "12px",
     whiteSpace: "nowrap",
     pointerEvents: "none",
-    zIndex: 1000,
+    zIndex: 9999,
     opacity: isVisible ? 1 : 0,
     transition: "opacity 0.2s ease-in-out",
   };

@@ -43,10 +43,11 @@ export default function NoteModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
+      className="fixed inset-0 flex items-center justify-center"
       style={{
         background: "rgba(15, 15, 15, 0.1)",
         backdropFilter: "blur(2px)",
+        zIndex: 9998,
       }}
       onClick={onClose}
     >
@@ -57,7 +58,7 @@ export default function NoteModal({
           borderRadius: "8px",
           boxShadow: "0 4px 32px rgba(15, 15, 15, 0.1)",
           border: "1px solid #e9e9e7",
-          zIndex: 50,
+          zIndex: 9999,
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -77,8 +78,9 @@ export default function NoteModal({
             <Button
               variant="icon"
               onClick={onClose}
-              className="p-1.5 rounded"
+              className="p-1.5 rounded hover:bg-gray-100"
               aria-label="Close modal"
+              style={{ color: "#37352f" }}
             >
               <svg
                 width="16"
@@ -86,6 +88,7 @@ export default function NoteModal({
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
+                style={{ color: "#37352f" }}
               >
                 <path
                   strokeLinecap="round"

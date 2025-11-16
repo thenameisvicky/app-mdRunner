@@ -86,7 +86,7 @@ export default function NotesGrid({ notes }: NotesGridProps) {
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" style={{ overflow: "visible" }}>
         {notes.map((note, index) => {
           const isBookmarked = bookmarkedNotes.has(note.slug);
           return (
@@ -101,6 +101,8 @@ export default function NotesGrid({ notes }: NotesGridProps) {
                 minHeight: "200px",
                 display: "flex",
                 justifyContent: "space-between",
+                overflow: "visible",
+                zIndex: 1,
               }}
               onClick={() => handleCardClick(note)}
               onMouseEnter={(e) => {
@@ -108,12 +110,14 @@ export default function NotesGrid({ notes }: NotesGridProps) {
                   "0 2px 8px rgba(15, 15, 15, 0.2)";
                 e.currentTarget.style.borderColor = "#d9d9d7";
                 e.currentTarget.style.transform = "translateY(-1px)";
+                e.currentTarget.style.zIndex = "10";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.boxShadow =
                   "0 1px 3px rgba(15, 15, 15, 0.1)";
                 e.currentTarget.style.borderColor = "#e9e9e7";
                 e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.zIndex = "1";
               }}
               key={index}
             >
