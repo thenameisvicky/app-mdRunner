@@ -12,6 +12,8 @@ type TooltipProps = {
   className?: string;
   style?: React.CSSProperties;
   disabled?: boolean;
+  offSet?: string;
+  hasArrow?: boolean;
 };
 
 export default function Tooltip({
@@ -22,6 +24,8 @@ export default function Tooltip({
   className = "",
   style,
   disabled = false,
+  offSet = "0px",
+  hasArrow = true,
 }: TooltipProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null);
@@ -47,25 +51,25 @@ export default function Tooltip({
       bottom: "100%",
       left: "50%",
       transform: "translateX(-50%)",
-      marginBottom: "8px",
+      marginBottom: offSet,
     },
     bottom: {
       top: "100%",
       left: "50%",
       transform: "translateX(-50%)",
-      marginTop: "8px",
+      marginTop: offSet,
     },
     left: {
       right: "100%",
       top: "50%",
       transform: "translateY(-50%)",
-      marginRight: "8px",
+      marginRight: offSet,
     },
     right: {
       left: "100%",
       top: "50%",
       transform: "translateY(-50%)",
-      marginLeft: "8px",
+      marginLeft: offSet,
     },
   };
 
@@ -90,6 +94,55 @@ export default function Tooltip({
     ...(style || {}),
   };
 
+  const arrowSize = 6;
+
+  const arrowStyles: Record<TooltipPosition, React.CSSProperties> = {
+    top: {
+      position: "absolute",
+      top: "100%",
+      left: "50%",
+      transform: "translateX(-50%)",
+      width: 0,
+      height: 0,
+      borderLeft: `${arrowSize}px solid transparent`,
+      borderRight: `${arrowSize}px solid transparent`,
+      borderTop: `${arrowSize}px solid rgba(15, 15, 15, 0.9)`,
+    },
+    bottom: {
+      position: "absolute",
+      bottom: "100%",
+      left: "50%",
+      transform: "translateX(-50%)",
+      width: 0,
+      height: 0,
+      borderLeft: `${arrowSize}px solid transparent`,
+      borderRight: `${arrowSize}px solid transparent`,
+      borderBottom: `${arrowSize}px solid rgba(15, 15, 15, 0.9)`,
+    },
+    left: {
+      position: "absolute",
+      left: "100%",
+      top: "50%",
+      transform: "translateY(-50%)",
+      width: 0,
+      height: 0,
+      borderTop: `${arrowSize}px solid transparent`,
+      borderBottom: `${arrowSize}px solid transparent`,
+      borderLeft: `${arrowSize}px solid rgba(15, 15, 15, 0.9)`,
+    },
+    right: {
+      position: "absolute",
+      right: "100%",
+      top: "50%",
+      transform: "translateY(-50%)",
+      width: 0,
+      height: 0,
+      borderTop: `${arrowSize}px solid transparent`,
+      borderBottom: `${arrowSize}px solid transparent`,
+      borderRight: `${arrowSize}px solid rgba(15, 15, 15, 0.9)`,
+    },
+  };
+
   return (
     <div
       className={className}
@@ -99,15 +152,11 @@ export default function Tooltip({
     >
       {children}
       {!disabled && (
-        <div
-          style={tooltipStyle}
-          role="tooltip"
-          aria-hidden={!isVisible}
-        >
+        <div style={tooltipStyle} role="tooltip" aria-hidden={!isVisible}>
           {content}
+          {hasArrow && <span style={arrowStyles[position]} />}
         </div>
       )}
     </div>
   );
 }
-

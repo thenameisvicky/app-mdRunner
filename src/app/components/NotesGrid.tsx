@@ -23,11 +23,16 @@ export default function NotesGrid({ notes }: NotesGridProps) {
   );
 
   useEffect(() => {
-    fetch("/api/preferences")
+    fetch("/api", {
+      method: "GET",
+      headers: {
+        "x-file-name": "userPreferences",
+      },
+    })
       .then((res) => res.json())
       .then((data) => {
-        if (data.bookmarkedNotes && Array.isArray(data.bookmarkedNotes)) {
-          setBookmarkedNotes(new Set(data.bookmarkedNotes));
+        if (data.bookMarkedCards && Array.isArray(data.bookMarkedCards)) {
+          setBookmarkedNotes(new Set(data.bookMarkedCards));
         }
       })
       .catch((err) => console.error("Error loading preferences:", err));
@@ -57,10 +62,11 @@ export default function NotesGrid({ notes }: NotesGridProps) {
     setBookmarkedNotes(newBookmarkedSet);
 
     try {
-      const response = await fetch("/api/preferences", {
+      const response = await fetch("/api", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "x-file-name": "userPreferences",
         },
         body: JSON.stringify({
           slug: note.slug,
@@ -120,7 +126,6 @@ export default function NotesGrid({ notes }: NotesGridProps) {
               <Tooltip
                 content={isBookmarked ? "Remove bookmark" : "Add bookmark"}
                 position="top"
-                style={{ zIndex: 10 }}
               >
                 <Button
                   variant="icon"

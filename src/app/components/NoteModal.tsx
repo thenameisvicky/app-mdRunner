@@ -50,7 +50,6 @@ export default function NoteModal({
       }}
       onClick={onClose}
     >
-      {/* Modal */}
       <div
         className="relative max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden"
         style={{
@@ -58,11 +57,10 @@ export default function NoteModal({
           borderRadius: "8px",
           boxShadow: "0 4px 32px rgba(15, 15, 15, 0.1)",
           border: "1px solid #e9e9e7",
-          zIndex: 51,
+          zIndex: 50,
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div
           className="flex items-center justify-between"
           style={{
@@ -99,8 +97,6 @@ export default function NoteModal({
             </Button>
           </div>
         </div>
-
-        {/* Content */}
         <div
           className="overflow-y-auto"
           style={{
@@ -126,8 +122,6 @@ export default function NoteModal({
             />
           </div>
         </div>
-
-        {/* Footer */}
         <div
           className="flex items-center justify-between"
           style={{

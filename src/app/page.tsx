@@ -1,11 +1,9 @@
 import NotesGrid from "./components/NotesGrid";
-import { getAllNotes } from "../utils/notes";
-import { THIRUKKURAL_TAMIL } from "@/utils/constants";
+import KuralHeader from "./components/KuralHeader";
+import { getAllNotes } from "@/server/helpers/markdown.helper";
 
 export default function Home() {
   const allMarkDowns = getAllNotes();
-  const kural =
-    THIRUKKURAL_TAMIL[Math.floor(Math.random() * THIRUKKURAL_TAMIL.length)];
 
   return (
     <div className="min-h-screen notion-bg" style={{ background: "#f7f6f3" }}>
@@ -20,9 +18,7 @@ export default function Home() {
         <h1 className="text-2xl font-bold" style={{ color: "#37352f" }}>
           MD Runner
         </h1>
-        <p className="mt-1" style={{ color: "#000000" }}>
-          {kural.split(";")}
-        </p>
+        <KuralHeader />
       </div>
       <div style={{ padding: "24px" }}>
         {allMarkDowns.length === 0 ? (

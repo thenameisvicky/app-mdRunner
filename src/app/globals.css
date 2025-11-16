@@ -300,3 +300,33 @@ body {
 .notion-textarea:focus {
   border-color: var(--notion-accent);
 }
+
+.kural-text {
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.kural-default {
+  position: relative;
+  padding: 4px 12px 4px 12px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #fef3c7 0%, #e4be00 100%);
+  box-shadow: 0 2px 4px rgba(2, 2, 2, 0.3);
+  border: 1px solid #000000;
+}
+
+@keyframes kuralBump {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.kural-bump {
+  animation: kuralBump 0.3s ease;
+}

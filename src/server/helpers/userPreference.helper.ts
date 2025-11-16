@@ -1,12 +1,16 @@
-import { UserPreference } from "./models/userpreference.model";
+import { UserPreference } from "@/server/models/userpreference.model";
 import fs from "fs";
 import path from "path";
 
-export function readPreferences(preferencesPath: string): UserPreference {
+const serverPath = path.join(process.cwd(), "src", "server");
+
+export function readPreferences(filename: string = "userPreferences"): UserPreference {
+  const preferencesPath = path.join(serverPath, "database", `${filename}.json`);
   try {
     if (!fs.existsSync(preferencesPath)) {
       const defaultPreferences: UserPreference = {
         bookMarkedCards: [],
+        defaultKural: 0,
       };
       fs.writeFileSync(
         preferencesPath,
@@ -21,17 +25,18 @@ export function readPreferences(preferencesPath: string): UserPreference {
     if (!Array.isArray(preferences.bookMarkedCards)) {
       preferences.bookMarkedCards = [];
     }
+    if (preferences.defaultKural === undefined) {
+      preferences.defaultKural = 0;
+    }
     return preferences;
   } catch (error) {
     console.error("Error reading preferences:", error);
-    return { bookMarkedCards: [] };
+    return { bookMarkedCards: [], defaultKural: 0 };
   }
 }
 
-export function writePreferences(
-  preferences: UserPreference,
-  preferencesPath: string
-): void {
+export function writePreferences(preferences: UserPreference, filename: string = "userPreferences"): void {
+  const preferencesPath = path.join(serverPath, "database", `${filename}.json`);
   try {
     const dir = path.dirname(preferencesPath);
     if (!fs.existsSync(dir)) {
