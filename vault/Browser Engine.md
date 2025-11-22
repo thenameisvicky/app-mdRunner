@@ -186,7 +186,7 @@ Which means, Each tab get's it's own isolated **Renderer Process**. The **Browse
   - Renderer crashes don't take the entire browser down.
   - iFrame crashes blocks only that frame.
 - **Security Threat Prevented** -
-  - Spectre side-channel attacks.
+  - Spectre side-channel attacks (tricks CPU bypasses the border steals scerets from CPU cache like a shinobi).
   - Cross-site scripting via shared memory.
   - Same-process privilege esclation.
 
@@ -322,10 +322,10 @@ Think like this
   - Profile with Performance Tab.
   - Watch heap snapshots of retained objects.
 
-## If you are intrested in below topics
+## If you are curious I got you
 
    1. Deep dive in to V8 internals - **v8 Internals** card.
    2. How modern framework works with Chromium browser - **React Internals** card.
    3. Inter Process Communication system - **Inter Process communication System** card.
 
-- This helps you become better Engineer who cannot be replaced by AI.
+> This helps you become better Engineer who cannot be replaced by AI.
