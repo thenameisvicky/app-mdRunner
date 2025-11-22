@@ -74,23 +74,10 @@ export default function Tooltip({
   };
 
   const tooltipStyle: React.CSSProperties = {
-    position: "absolute",
     ...positionStyles[position],
-    background: "rgba(15, 15, 15, 0.9)",
-    color: "#ffffff",
-    padding: "6px 10px",
-    borderRadius: "4px",
-    fontSize: "12px",
-    whiteSpace: "nowrap",
-    pointerEvents: "none",
-    zIndex: 9999,
-    opacity: isVisible ? 1 : 0,
-    transition: "opacity 0.2s ease-in-out",
   };
 
   const wrapperStyle: React.CSSProperties = {
-    position: "relative",
-    display: "inline-block",
     ...(style || {}),
   };
 
@@ -145,14 +132,21 @@ export default function Tooltip({
 
   return (
     <div
-      className={className}
+      className={`relative inline-block ${className}`}
       style={wrapperStyle}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
       {children}
       {!disabled && (
-        <div style={tooltipStyle} role="tooltip" aria-hidden={!isVisible}>
+        <div
+          className={`absolute bg-[rgba(15,15,15,0.9)] text-white px-2.5 py-1.5 rounded text-xs whitespace-nowrap pointer-events-none z-[9999] transition-opacity duration-200 ease-in-out ${
+            isVisible ? "opacity-100" : "opacity-0"
+          }`}
+          style={tooltipStyle}
+          role="tooltip"
+          aria-hidden={!isVisible}
+        >
           {content}
           {hasArrow && <span style={arrowStyles[position]} />}
         </div>

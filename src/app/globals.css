@@ -1,8 +1,6 @@
 @import "tailwindcss";
 
-/* Notion Design System Variables */
 :root {
-  /* Notion Colors */
   --notion-bg: #ffffff;
   --notion-bg-secondary: #f7f6f3;
   --notion-text: #37352f;
@@ -15,11 +13,9 @@
   --notion-shadow: rgba(15, 15, 15, 0.1);
   --notion-shadow-hover: rgba(15, 15, 15, 0.2);
   
-  /* Notion Typography */
   --notion-font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
   --notion-font-mono: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
   
-  /* Notion Spacing */
   --notion-spacing-xs: 2px;
   --notion-spacing-sm: 4px;
   --notion-spacing-md: 8px;
@@ -29,7 +25,6 @@
   --notion-spacing-3xl: 32px;
   --notion-spacing-4xl: 40px;
   
-  /* Notion Border Radius */
   --notion-radius-sm: 3px;
   --notion-radius-md: 6px;
   --notion-radius-lg: 8px;
@@ -59,7 +54,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Notion-style Markdown Content */
 .notion-content {
   color: #37352f !important;
   font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, sans-serif;
@@ -80,7 +74,6 @@ body {
   font-size: 24px;
   font-weight: 600;
   line-height: 1.3;
-  margin-top: 1.4em;
   margin-bottom: 1px;
   color: #37352f !important;
 }
@@ -89,7 +82,6 @@ body {
   font-size: 20px;
   font-weight: 600;
   line-height: 1.3;
-  margin-top: 1em;
   margin-bottom: 1px;
   color: #37352f !important;
 }
@@ -98,7 +90,6 @@ body {
   font-size: 16px;
   font-weight: 600;
   line-height: 1.3;
-  margin-top: 0.75em;
   margin-bottom: 1px;
   color: #37352f !important;
 }
@@ -185,7 +176,6 @@ body {
   padding: 0;
 }
 
-/* Force all text elements to be visible */
 .notion-content * {
   color: #37352f !important;
 }
@@ -214,7 +204,91 @@ body {
   color: #1a73d1 !important;
 }
 
-/* Notion-style Modal */
+.collapsible-markdown {
+  width: 100%;
+}
+
+.collapsible-section {
+  margin: 0;
+}
+
+.collapsible-heading-wrapper {
+  position: relative;
+  transition: background-color 0.1s ease;
+}
+
+.collapsible-heading-wrapper:hover {
+  background-color: rgba(55, 53, 47, 0.03);
+  border-radius: 3px;
+}
+
+.collapsible-heading-wrapper:hover .collapsible-toggle {
+  opacity: 1;
+}
+
+.collapsible-toggle {
+  opacity: 0.6;
+  transition: opacity 0.1s ease, transform 0.2s ease;
+}
+
+.collapsible-heading-wrapper:hover .collapsible-toggle {
+  opacity: 1;
+}
+
+.collapsible-content {
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.collapsible-content .markdown-content-block {
+  margin-top: 1px;
+  margin-bottom: 1px;
+}
+
+.collapsible-content .markdown-content-block p {
+  margin-top: 1px;
+  margin-bottom: 1px;
+  color: #37352f !important;
+}
+
+.collapsible-content .markdown-content-block ul,
+.collapsible-content .markdown-content-block ol {
+  margin-top: 1px;
+  margin-bottom: 1px;
+  padding-left: 1.5em;
+}
+
+.collapsible-content .markdown-content-block li {
+  margin-top: 1px;
+  margin-bottom: 1px;
+  color: #37352f !important;
+}
+
+.collapsible-content .markdown-content-block code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 85%;
+  background-color: #f7f6f3;
+  padding: 2px 4px;
+  border-radius: 3px;
+  color: #37352f !important;
+}
+
+.collapsible-content .markdown-content-block pre {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 14px;
+  background-color: #f7f6f3;
+  padding: 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin-top: 1px;
+  margin-bottom: 1px;
+}
+
+.collapsible-content .markdown-content-block pre code {
+  background: none;
+  padding: 0;
+}
+
 .notion-modal {
   background: var(--notion-bg);
   border-radius: var(--notion-radius-lg);
@@ -237,7 +311,6 @@ body {
   background: var(--notion-bg-secondary);
 }
 
-/* Notion-style Buttons */
 .notion-button {
   font-family: var(--notion-font-family);
   font-size: 14px;
@@ -267,7 +340,6 @@ body {
   border-color: var(--notion-accent-hover);
 }
 
-/* Notion-style Input */
 .notion-input {
   font-family: var(--notion-font-family);
   font-size: 16px;

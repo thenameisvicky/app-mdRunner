@@ -1,11 +1,10 @@
 ---
-title: How User Interface runs on Browser engine (Chromium)
+title: Deep dive into v8 - JS engine
 date: 2025-10-27
 ---
 
 # v8 Internals Overview
 
-- This is just an basic introduction stuff about v8 engine
 - **Engine overview**
   - v8 is Google's Javascript & webAssembly engine.
     1. Used in chrome, Edge, Opera - browser side.
@@ -149,3 +148,10 @@ date: 2025-10-27
 - Compiled from C, C++, or Rust.
 - Executes alongside JS in v8.
 - Ideal for compute-heavy tasks like image processing or ML inference.
+
+## Upcoming Topics
+
+- Rendering engine deep internals - blink specific concepts.
+- GPU pipeline specifics - sika, viz, surfaces + frame sink.
+- Javascript engine integration details - Oilpan GC in blink for DOM.
+- 

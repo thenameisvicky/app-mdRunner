@@ -1071,3 +1071,9 @@ date: 2025-07-03
 ## Behind the Scenes when you visit a website
 
 ## Observability and Debugging
+
+## DNS Authoritive Switching
+
+- Switch certs.
+- Point CNames.
+- Scenarion when one of my DNS athoritive is down i need quick switching to another to have an fallback i run 11 - 12 microservice with proxies and i have certs in my Authoritive and cnames stuffs so iwill be moving evruthing to another in less than 1 hour.

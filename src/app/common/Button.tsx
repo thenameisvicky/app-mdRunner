@@ -16,48 +16,16 @@ export default function Button({
   style,
   ...rest
 }: ButtonProps) {
-  const baseStyles: React.CSSProperties = {
-    cursor: "pointer",
-    transition: "all 0.15s ease-out",
-    ...style,
-  };
-
-  const variantStyles: Record<string, React.CSSProperties> = {
-    default: {
-      background: "#ffffff",
-      border: "1px solid #e9e9e7",
-      color: "#37352f",
-      padding: "8px 12px",
-      borderRadius: "6px",
-      fontSize: "14px",
-      fontWeight: 500,
-    },
-    icon: {
-      background: "transparent",
-      border: "none",
-      padding: "6px",
-      borderRadius: "4px",
-    },
-    text: {
-      background: "#ffffff",
-      border: "1px solid #e9e9e7",
-      color: "#37352f",
-      padding: "6px 12px",
-      borderRadius: "6px",
-      fontSize: "14px",
-      fontWeight: 500,
-    },
-  };
-
-  const combinedStyle = {
-    ...variantStyles[variant],
-    ...baseStyles,
+  const variantClasses: Record<string, string> = {
+    default: "bg-white border border-[#e9e9e7] text-[#37352f] px-3 py-2 rounded-md text-sm font-medium",
+    icon: "bg-transparent border-none p-1.5 rounded",
+    text: "bg-white border border-[#e9e9e7] text-[#37352f] px-3 py-1.5 rounded-md text-sm font-medium",
   };
 
   return (
     <button
-      className={className}
-      style={combinedStyle}
+      className={`cursor-pointer transition-all duration-150 ease-out ${variantClasses[variant]} ${className}`}
+      style={style}
       {...rest}
     >
       {children}

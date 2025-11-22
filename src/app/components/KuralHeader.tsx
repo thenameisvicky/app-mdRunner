@@ -99,10 +99,9 @@ export default function KuralHeader() {
       }
     >
       <p
-        className={`mt-1 xl font-semi-bold cursor-pointer kural-text  ${
+        className={`mt-1 xl font-semi-bold cursor-pointer kural-text text-black ${
           isSetAsDefault ? "kural-default" : ""
         }`}
-        style={{ color: "#000000" }}
         onClick={handleKuralClick}
       >
         {isLoading ? "Loading..." : THIRUKKURAL_TAMIL[currentKural].split(";")}

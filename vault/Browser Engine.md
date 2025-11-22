@@ -17,12 +17,7 @@ date: 2025-10-27
 ## Chromium Multi-Process Architecture
 
 Modern browsers like Chrome, Edge, Brave and Opera use a multi-process sandboxed architecture (Isolated from outside world), ofter called as **"site isolation"** or **"processs-per-site-instance"**.
-Which means -
-
-1. Each tab get's it's own isolated **Renderer Process**.
-2. The **Browser**, **GPU** and **Network** Process are shared globally across all tabs.
-3. Additionaly **Utility** process spawned as needed.
-4. Each cross-origin `<iframe>` may also get its own Renderer Process (OOPIF), allowing site isolation within a single tab.
+Which means, Each tab get's it's own isolated **Renderer Process**. The **Browser**, **GPU** and **Network** Process are shared globally across all tabs. Additionaly **Utility** process spawned as needed. Each cross-origin `<iframe>` may also get its own Renderer Process (OOPIF), allowing site isolation within a single tab.
 
 - **Browser Process** -
   - Manages tabs and windows, Handles network requests, downloads, caching, Co-ordinates security and sandboxing.
@@ -46,36 +41,37 @@ Which means -
   - Performs layout, painting and compositing.
   - Interacts with GPU or ShiftShader via compositing / rasterization, Cannot access OS directly.
   - Communicate with browser process for privileged operations like accessing mic, local file directory etc.
-  - **Main Thread (Blink):**
-    - HTML Parser → builds DOM
-    - CSS Parser → builds CSSOM
-    - JS execution (V8 engine) → AST, bytecode, TurboFan JIT
-    - Event dispatch & user interaction handling
-  - **Compositor Thread:**
-    - Layer tree management
-    - Handles scroll, animation, paint invalidation
-    - Sends layer data to GPU process
-  - **Raster Threads:**
-    - Rasterize tiles from layers (CPU rasterization if GPU unavailable)
-  - **Worker Threads / ThreadPool:**
-    - Web Workers → parallel JS computation without blocking main thread
-    - Worklets → lightweight contexts for animation, CSS paint, audio
-  - **IO Thread (Renderer):**
-    - Receives network or browser IPC messages
-    - Sends resource requests to Network process (from Preload Scanner)
-- **GPU Process** -
-  - Handles all GPU-acclerated task.
-  - Rasterization of layers.
-  - Compositing and WebGl rendering.
-  - Crashes in GPU won't affect the browser.
-  - Frees up main thread in Renderer Process for JS & layout.
-  - **GPU Main Thread:** Receives layers, orchestrates rasterization
-  - **Command Buffer Threads:** Converts GPU commands → hardware API (OpenGL/DirectX/Vulkan)
-  - **Video / Raster Threads (optional):** Handles offloaded rasterization or video decode
+    - **Main Thread (Blink):**
+      - HTML Parser → builds DOM
+      - CSS Parser → builds CSSOM
+      - JS execution (V8 engine) → AST, bytecode, TurboFan JIT
+      - Event dispatch & user interaction handling
+    - **Compositor Thread:**
+      - Layer tree management
+      - Handles scroll, animation, paint invalidation
+      - Sends layer data to GPU process
+    - **Raster Threads:**
+      - Rasterize tiles from layers (CPU rasterization if GPU unavailable)
+    - **Worker Threads / ThreadPool:**
+      - Web Workers → parallel JS computation without blocking main thread
+      - Worklets → lightweight contexts for animation, CSS paint, audio
+    - **IO Thread (Renderer):**
+      - Receives network or browser IPC messages
+      - Sends resource requests to Network process (from Preload Scanner)
+    - **GPU Process** -
+      - Handles all GPU-acclerated task.
+      - Rasterization of layers.
+      - Compositing and WebGl rendering.
+      - Crashes in GPU won't affect the browser.
+      - Frees up main thread in Renderer Process for JS & layout.
+      - **GPU Main Thread:** Receives layers, orchestrates rasterization
+      - **Command Buffer Threads:** Converts GPU commands → hardware API (OpenGL/DirectX/Vulkan)
+      - **Video / Raster Threads (optional):** Handles offloaded rasterization or video decode
 
 ## Rendering Life Cycle
 
 - When typing `www.arkasoft.ai` in address bar and hitting enter the browser process captures and checks for address if address then build is requested else search term sent to **Search Engine**.
+- On navigation, the Browser process creates a **NavigationRequest**, applies **security** checks (CSP, COOP/COEP, CORB), selects the correct **SiteInstance** and decides if a new Renderer Process is needed (process-per-site-instance). Once the response is ready, the browser commits the navigation by swapping to a new **RenderFrameHost**.
 - **Browser Process** - The Orchestrator (controller)
   - The `Browser` Process is the `Orchestrator` this is the one which controls the whole life cycle other processes.
   - The Browser process has many threads, each thread plays it's own role inside the process.
@@ -160,6 +156,113 @@ Which means -
 | Layer Paint            | Renderer | Main Thread, Compositor, Raster Threads | Build layers, rasterize tiles, send to GPU                  |
 | Compositing & Display  | GPU      | GPU Main, Command Buffer, Raster        | Rasterize & composite layers, submit to OS                  |
 | Service Worker / Cache | Utility  | Service Worker Thread, Cache Threads    | Serve cached/offline responses                              |
+
+## Site Isolation Concepts
+
+- Chromium's site isolation is a security & stability architecture that forces difference websites to run in seperate renderer process to prevent data leakage, spectre attacks and cross-site contamination.
+- **Site Instance** -
+  - A site instance represents a group of documents with the same site URL.
+  - Same site -> Same site instance -> Can share renderer.
+  - Different site -> Different site instances -> Must use different renderer process.
+- **Browsing Instance** -
+  - A Browsing instance is a group of pages that can script each other.
+  - Cross site navigation withing same browsing instance still requires processes swap.
+- **OOPIF - Out of process iFrames** -
+  - Each cross-origin iFrame gets its own renderer process.
+  - Parent page and iframe communicates via IPC, not memory sharing.
+  - DOM access:
+    - Parent cannot read iFrame DOM.
+    - iFrame cannot access parent.
+- **Process per site instance** -
+  - A renderer process is tied to a site instance.
+  - Example -
+    - arkasoft.ai -> Renderer A.
+    - google.com -> Renderer B.
+    - Navigating arkasoft -> github.com -> Rendere C.
+- **Data Isolation** -
+  - Prevents cookies, localstorage, indexedDB, sharedArrayBuffer leaking accross origins.
+  - Memory isolation - a renderer cannot see heap or stack content of another renderer.
+- **Crash Isolation** -
+  - Renderer crashes don't take the entire browser down.
+  - iFrame crashes blocks only that frame.
+- **Security Threat Prevented** -
+  - Spectre side-channel attacks.
+  - Cross-site scripting via shared memory.
+  - Same-process privilege esclation.
+
+## Security Architecture
+
+- Chromium uses a multi-layered security model: sandboxing, process isolation, premission gates and policy enforcement.
+- **Sandboxing** -
+  - Renderer processes run with no direct OS access.
+  - It won't have permissions to read file system, open arbitary sockets, access camera or mic, spawn threads outside controlled APIs.
+  - Renderer can only send IPC message to Browser Process.
+- **Permission Architecture** -
+  - Browser Process always asks the user for access - mic, camera, location and other system stuffs.
+  - Renderer requests are always brokered by Browser process, browser verifies Origin, User gesture, Stored permissions.
+- **CSP - Content Securirty Policy** -
+  - Defends againts XXS, inline scripting, cross-site injections.
+  - COOP + COEP -> Cross origin Isolation, required for SharedArrayBuffer, high resolution timers.
+  - COOP - Cross-Origin Opener Policy, COEP - Cross-Origin Embedder Policy.
+  - Together they gurantee no cross-origin pages in the same browsing context group.
+  - Enables strong isolation -> sharedArrayBuffer becomes safe.
+  - CROB - Cross-Origin Read Blocking, prevents renderer from reading cross-origin HTML/XML/JSON even if accidentally requested.
+- **Mojo IPC Security** -
+  - All inter process communication is validated.
+  - Invalid/Malicious IPC closes renderer process.
+- **Extension Process Isolation** -
+  - EXtensions runs in isolated extension processes.
+  - With isolated context inside the renderer.
+- **Memory safety** -
+  - Oilpan garbage collector for blink DOM objects.
+  - PartitionAlloc to avoid heap exploitation.
+  - MiraclePtr (Pointer sanctification).
+
+## Event Loop / Scheduler
+
+- Chromium renders the User Interface smoothly because Blink scheduler organizes tasks with priority tiers.
+- **The Event Loop Model**
+  - Renderer event loop processes Input events, Javascript callbacks, DOM updates, Render steps, Compositor commits, Idle tasks (GC, caching).
+- **Blink scheduler Priorities**
+  - Blink scheduler has strict priorities here is the map -
+    - Highest - User Inputs.
+    - High - Animations Frame via `requestAimationFrame`.
+    - Medium - Rendering, style recalc.
+    - Normal - Javascript callbacks, promises.
+    - Low - Network events, timers.
+    - Idle - GC, cleanup tasks.
+  - Input and Animation get preemptive priority to maintain 60fps.
+- **Task Queue Types**
+  - Renderer maintains many task queues-
+    - Main thread queue.
+    - Input queue.
+    - Animation queue.
+    - JS Microtask queue (promises, setTimeOuts).
+    - Timer queue.
+    - Idle queue.
+  - Microtasks runs after each JS call stack, before next task.
+
+## Back - Forward Cache (bfcache)
+
+- Browser navigation - Back and Forward buttons, can restore pages instantly using In-Memory snapshots.
+- **bfCache**
+  - When user navigates away, the page is frozen not closed.
+  - It's entire state is kept in memory, DOM tree, JS heap, Layout, scrool position, Event listeners, WebAssembly Memory.
+  - So going back and forward - the page restored instantly no network requests, no JS re-rendering, no layout rebuild, no repaint.
+  - Faster than any framework's client-side caching.
+  - Active → Frozen → In bfcache → Restored OR Destroyed.
+- **Scenarios when page won't enter bfCache**
+  - When a page uses `unload` event and `window.close()` rules.
+  - Active websockets, IndexedDB transactions, WebRTC.
+  - Not cross-origin isolated when required.
+  - Page embeds cross-origin iframe that is not cacheable.
+- **Freezing beheavior**
+  - When page enters bfCache JS timers pauses, setInterval/setTimeOut frozen.
+  - `requestAnimationFrame` stops, No event loop, page cannot execute JS, workers terminated.
+
+## Visualized
+
+![Chromium Architecture](./visuals/ChromiumArchitectureCycle.png)
 
 ## Modern UI Delivery Architecture
 

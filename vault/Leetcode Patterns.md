@@ -3,38 +3,61 @@ title: Leetcode Patterns
 date: 2025-07-03
 ---
 
-## Phase 1 - Foundational Patterns
+## Phase 1 - Mental Models for Pattern Recognition
 
-- Complexities
-    1. O ( 1 ) constant - Always takes same time, does not grow with input size.
-    2. O ( log n ) - Time shrinks as input grows, each steps cut the problem in half.
-    3. O ( n ) - Time grows directly with input size.
-    4. O ( n log n ) - Time shrinks as input grows but the divide and conquer ( log n ) is applied n times.
-    5. O ( $n^2$ ) - Time grows fast as input, Time  = $n*2$.
-    6. O ( n! ) - Time grows faster as input, Time = $n*n-1$.
-- Binary search O( log n )
-    1. Use to search efficiently for a target in a sorted array or range.
-    2. Repeatedly split the search space in half meaning that unlike other two pointer techniques binary search do not need to increment pointers by one as we need a optimal search just cut the search area.
-- Two Pointers O( n )
-    1. Used to compare 2 elements in an array from both ends or maintain a pair of 2 indices two pointers is best practice.
-    2. Start with two pointers and move them based on condition( incrementing the pointers by one ).
-- Sliding window O( n )
-    1. Use when working with contiguous sub arrays or sub strings and try maintain a window that satisfies a condition.
-    2. Expand window to include new elements and shrink it down from left as needed to meet conditions.
-- Prefix sum / cumulative sum O( n )
-    1. Use when you need to calculate sum over a range of multiple times or track cumulative effects.
-    2. Precompute a prefix sum of array where each index holds sum of start → index.
-- Hash-map / set basics O( 1 )
-    1. Use hash-maps when you want to track some elements behaviour or occurrence kind of places ( key-values ).
-    2. Set and map are same but set do not allow repeated ones by default where map allows it ( only keys ).
-    3. Hashing allows O( 1 ) average time complexity for insertion, deletion and lookup.
-- Math + Bit manipulation
-    1. Primes , Greatest common Divisor, Lowest Common Divisor, modulo operations.
-    2. Combinators, permutations, combinations.
-    3. Number properties
-    4. Checking even/odd: n & 1
-    5. Turning off/on a bit: n | (1 << k), n & ~(1 << k)
-    6. Counting set bits: n & (n - 1) trick
+- **Ask the change + Condition Question**
+  - Does the problem describe a value that changes repeatedly until a condition is met ?
+  - Example -
+    - Original value doubles while it exists in the array.
+    - Pattern a simple while loop with membership (presence as condition) check.
+    - No DP, no Pointers, no recursions needed.
+  - Mental trick -
+    - Look for words like keep **X** until **Y**.
+    - Often maps directly to while loops or simple iterative processes using for loop and incrementing the for loop pointer conditionally.
+- **Check if the problem really needs Optimization Patterns**
+  - Does it involve overlapping subproblems? - DP.
+  - Does it involve structure like sorted arrays, trees, graphs? - Two pointers/BFS/DFS.
+  - Does it involve windowed computations? - Sliding window.
+  - If none of this met apply simple patters first.
+- **Visualize the process as state transitions**
+  - Every operation moves the system from one state to another.
+  - If the number of states is small and discrete - simple iterative loop.
+  - If the number of states is combinatorial - likely DP, backtracking, recursion.
+  - Example -
+    - original -> doubles -> check the array -> new original -> doubles -> check again.
+    - States: 2 -> 4 -> 8 -> ...
+    - States are predictable and linear so Iterative is enough.
+- **Use Incremental Check thinking**
+  - If each step depends only on the current state, no need for memorzation (DP).
+  - If each step depends on multiple previous state - DP.
+  - Example -
+    - Doubling original depends only on its current value, not the sequence that came before - iterative loop.
+    - Fibonacci sequence depends on two previous numbers - DP or iterative formula.
+- **Keep a Pattern safety checklist**
+  - Before jumping into pattern check the constrains if
+    1. Is the input small enough for a simple scan?
+    2. Can a brute-force approach give correct answer?
+    3. Are there repeated computations that could be avoided with memoization?
+    4. Does the problem hint a state transition or path counting?
+  - If the answer is yes for 1-2 start simple else try DP or graph based apprach.
+
+## Phase 2 - Foundational Patterns
+
+- Only way to master pattern recogination is to re-solving the problems you solved again and again until you see a statement and come up with a mental pattern.
+- Don't jump into patterns always, read the statement throughly and decide is pattern really needed or can just solve this in traditional way.
+- Most problems solved with simple techiniques not with complex patterns.
+- **Complexities**
+    1. O(1) constant - Always takes same time, does not grow with input size.
+    2. O(logn) - Time shrinks as input grows, each steps cut the problem in half.
+    3. O(n) - Time grows directly with input size.
+    4. O(nlogn) - Time shrinks as input grows but the divide and conquer (logn) is applied n times.
+    5. O(n<sup>2</sup>) - Time grows fast as input, Time  = n<sup>n-1</sup>.
+- **Two Pointers**
+    1. Used when the array needs to be scanned from both ends, maintaining two positions and shrink or expand with a condition.
+    2. Commonly used in problems like Pair sum, container with most water, removing duplicates, two sum, cycle detection, rotated array search etc...
+    3. Not only on above problems can use this patterns to solve any problem as needed.
+- **Sliding window**
+    1. Used when a window (pairs) of string or values need to be kept track of.
 
 ## Phase 2 - Data structure Patterns
 

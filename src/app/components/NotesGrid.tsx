@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import NoteModal from "./NoteModal";
-import Button from "../common/Button";
 import Tooltip from "../common/Tooltip";
+import BookmarkIcon from "../common/BookmarkIcon";
 
 type Note = {
   slug: string;
@@ -86,71 +86,46 @@ export default function NotesGrid({ notes }: NotesGridProps) {
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" style={{ overflow: "visible" }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 overflow-visible">
         {notes.map((note, index) => {
           const isBookmarked = bookmarkedNotes.has(note.slug);
           return (
             <div
-              className="cursor-pointer transition-all duration-150 ease-out hover:shadow-lg relative"
-              style={{
-                padding: "16px",
-                border: "1px solid #e9e9e7",
-                borderRadius: "8px",
-                background: "#ffffff",
-                boxShadow: "0 1px 3px rgba(15, 15, 15, 0.1)",
-                minHeight: "200px",
-                display: "flex",
-                justifyContent: "space-between",
-                overflow: "visible",
-                zIndex: 1,
-              }}
+              className="cursor-pointer transition-all duration-150 ease-out relative p-4 border border-[#e9e9e7] rounded-lg bg-white shadow-[0_1px_3px_rgba(15,15,15,0.1)] min-h-[200px] flex flex-col overflow-visible z-[1] hover:shadow-[0_2px_8px_rgba(15,15,15,0.2)] hover:border-[#d9d9d7] hover:-translate-y-[1px] hover:z-10"
               onClick={() => handleCardClick(note)}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow =
-                  "0 2px 8px rgba(15, 15, 15, 0.2)";
-                e.currentTarget.style.borderColor = "#d9d9d7";
-                e.currentTarget.style.transform = "translateY(-1px)";
-                e.currentTarget.style.zIndex = "10";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow =
-                  "0 1px 3px rgba(15, 15, 15, 0.1)";
-                e.currentTarget.style.borderColor = "#e9e9e7";
-                e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.zIndex = "1";
-              }}
               key={index}
             >
-              <h2
-                className="text-xl font-bold mb-2"
-                style={{ color: "#37352f" }}
-              >
-                {note.frontmatter.filename || note.slug}
-              </h2>
-              <Tooltip
-                content={isBookmarked ? "Remove bookmark" : "Add bookmark"}
-                position="top"
-              >
-                <Button
-                  variant="icon"
-                  onClick={(e) => handleBookmarkClick(e, note)}
-                  className="p-1.5 rounded transition-colors"
-                  aria-label={isBookmarked ? "Remove bookmark" : "Add bookmark"}
+              <div className="absolute -top-2 right-2 z-20">
+                <Tooltip
+                  content={isBookmarked ? "Remove Bookmark" : "Add Bookmark"}
+                  position="top"
                 >
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill={isBookmarked ? "#FFD700" : "none"}
-                    stroke={isBookmarked ? "#FFD700" : "#787774"}
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleBookmarkClick(e, note);
+                    }}
+                    className="cursor-pointer inline-flex"
                   >
-                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-                  </svg>
-                </Button>
-              </Tooltip>
+                    <BookmarkIcon
+                      isBookmarked={isBookmarked}
+                      size={24}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleBookmarkClick(e, note);
+                      }}
+                      aria-label={
+                        isBookmarked ? "Remove bookmark" : "Add bookmark"
+                      }
+                    />
+                  </div>
+                </Tooltip>
+              </div>
+              <div className="flex items-center gap-5">
+                <h2 className="text-xl font-bold text-[#37352f] m-0 flex-1">
+                  {note.frontmatter.filename || note.slug}
+                </h2>
+              </div>
             </div>
           );
         })}
