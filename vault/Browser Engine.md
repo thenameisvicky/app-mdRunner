@@ -3,15 +3,18 @@ title: How User Interface runs on Browser engine (Chromium)
 date: 2025-10-27
 ---
 
+## Introduction
+
+This document describes about Browser Engine not Search Engine i have explained about the core concept about browser engine - chromium. This document helps you understand the vast architecture, I have only explained what is most needed if you wanna go all in you can refer the documents that i pinned in the EOF.
+
 ## How the UI bundle reaches the browser?
 
 - DNS resolution getting the destination IP (where the build is located)- wanna know how? take a look at **Networking card**.
 - The browser uses https or http to talk to the destination IP.
 - HTTPS uses TLS(Transport Layer Security) -- ensuring the connection is encrypted and secure.
-- A TCP connection is established via 3-way handskake (SYNC, SYNC-ACK, ACK).
+- A TCP connection is established via 3-way handskake (SYN, SYN-ACK, ACK).
 - After TCP connection Acknowledged the browser sends a request for the resource Get/HTTPS/1.1 host: arkasoft.ai.
-- The DNS Authoritive gets the request and route it to the server or CDN according to the configuration.
-- The CDN returns pre built HTML, CSS and JS files to the browser.
+- The DNS Authoritive resolves with destination IP and request is sent by Browser Process, the server or CDN receives the request and returns the Build file in Chunks.
 - Those files will be downloaded in the browser.
 
 ## Chromium Multi-Process Architecture
@@ -28,7 +31,7 @@ Which means, Each tab get's it's own isolated **Renderer Process**. The **Browse
   - **Cache / File Threads:** Access local resources if needed.
   - **Process Launcher Thread:** Creates Renderer or Utility processes.
   - **Worker / ThreadPool Threads:** Background tasks, scheduling, navigation throttles (permissions, CSP, SafeBrowsing checks).
-- **Network / Service worker Process** -
+- **Network Process** -
   - Handles fetch requests, Manages caching HTTP cache and service workers.
   - Can respond to request offline first using cached data, Runs independently of Renderer Process.
   - Allows progressive web page to work offline.
@@ -58,15 +61,16 @@ Which means, Each tab get's it's own isolated **Renderer Process**. The **Browse
     - **IO Thread (Renderer):**
       - Receives network or browser IPC messages
       - Sends resource requests to Network process (from Preload Scanner)
-    - **GPU Process** -
-      - Handles all GPU-acclerated task.
-      - Rasterization of layers.
-      - Compositing and WebGl rendering.
-      - Crashes in GPU won't affect the browser.
-      - Frees up main thread in Renderer Process for JS & layout.
-      - **GPU Main Thread:** Receives layers, orchestrates rasterization
-      - **Command Buffer Threads:** Converts GPU commands → hardware API (OpenGL/DirectX/Vulkan)
-      - **Video / Raster Threads (optional):** Handles offloaded rasterization or video decode
+  - In some builds Chromium removes the dedicated renderer IO thread and uses worker threads instead.
+- **GPU Process** -
+  - Handles all GPU-acclerated task.
+  - Rasterization of layers.
+  - Compositing and WebGl rendering.
+  - Crashes in GPU won't affect the browser.
+  - Frees up main thread in Renderer Process for JS & layout.
+  - **GPU Main Thread:** Receives layers, orchestrates rasterization.
+  - **Command Buffer Threads:** Converts GPU commands → hardware API (OpenGL/DirectX/Vulkan).
+  - **Video / Raster Threads (optional):** Handles offloaded rasterization or video decode.
 
 ## Rendering Life Cycle
 
@@ -91,7 +95,7 @@ Which means, Each tab get's it's own isolated **Renderer Process**. The **Browse
   - Those chunks are written in a `shared memory` buffer by `Netowork` Process so both `Network` and `Renderer` Processes can access them without `copying`.
   - `Network` Process sends notification via `IPC` to `Browser` Process then,`Browser` Process creates or re-uses `Renderer` Process.
 - **Renderer Process**
-  - After `Renderer` Process receives the notification form `Browser` Process via `IPC` or gets created (depnds on site instance) it gets the `HTML` Stream from `shared Memory` buffer via `ICP`.
+  - After `Renderer` Process receives the notification form `Browser` Process via `IPC` or gets created (depnds on site instance) it gets the `HTML` Stream from `shared Memory` buffer via `Mojo data pipes`.
   - Inside Renderer Process multiple thread will be working together, namely Main Thread (Blink), Compositor Thread, Worker Thread and Raster Thread.
   - After `HTML` stream is received the `HTML Parser` starts parsing tokens into DOM.
   - A `Preload Scanner` runs ahead of Parser finding `<Link>`, `<script>`, `<img>` tags early, sends resource request via `IPC` to `Network` Process.
@@ -108,7 +112,7 @@ Which means, Each tab get's it's own isolated **Renderer Process**. The **Browse
   - Here `Compositor` thread will send the layer info via `shared memory` to `GPU` Process.
   - `GPU` Process rasterizes -> composites -> sumbits final frame to `OS Compositor`.
   - The `GPU` Process uses Command `Buffers` to batch drawing commands from multiple renderers before sending them to the `OS` compositor (like ANGLE for OpenGL/DirectX translation).
-  - Browser Process UI thread receives "frame ready" from OS and presents it on screen.
+  - Browser Process UI thread receives "frame ready" from OS and presents it on screen - this is a very big process but for now this level of knowledge is enough.
   - If `GPU` not available then fallback to `SwiftShader` (software emulation of this compositor pipeline using CPU).
   - The `Renderer` has a `scheduler` that prioritizes `user-visible` tasks (input, animation, painting) over `background` JS or network `callbacks`. This is key for maintaining `60fps` responsiveness.
   - `IO` Thread handles IPC message from Browser and Network yes network can communicate with renderer directly via IPC interface Browser Process is just supervisor not a middleman.
@@ -240,7 +244,7 @@ Which means, Each tab get's it's own isolated **Renderer Process**. The **Browse
     - JS Microtask queue (promises, setTimeOuts).
     - Timer queue.
     - Idle queue.
-  - Microtasks runs after each JS call stack, before next task.
+  - Microtasks runs after each JS call stack, before next task and painting that is why rendering will slow down.
 
 ## Back - Forward Cache (bfcache)
 
@@ -328,4 +332,4 @@ Think like this
    2. How modern framework works with Chromium browser - **React Internals** card.
    3. Inter Process Communication system - **Inter Process communication System** card.
 
-> This helps you become better Engineer who cannot be replaced by AI.
+> This makes you a better engineer — one that AI can’t easily replace.
