@@ -24,7 +24,7 @@ export default function Tooltip({
   className = "",
   style,
   disabled = false,
-  offSet = "0px",
+  offSet = "5px",
   hasArrow = true,
 }: TooltipProps) {
   const [isVisible, setIsVisible] = useState(false);
