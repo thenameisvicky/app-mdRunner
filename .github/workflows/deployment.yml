@@ -4,10 +4,14 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: 'Branch to deploy'
+        description: "Branch to deploy"
         required: true
         type: string
-        default: 'master'
+        default: "master"
+      email:
+        description: "Enter deployment email"
+        required: true
+        type: string
 
 concurrency:
   group: "pages"
@@ -20,13 +24,13 @@ jobs:
       contents: read
       id-token: write
       pull-requests: read
-    
+
     steps:
       - name: Validate branch input
         run: |
           BRANCH="${{ github.event.inputs.branch }}"
           if [ -z "$BRANCH" ]; then
-            echo "❌ Branch name cannot be empty"
+            echo "Branch name cannot be empty"
             exit 1
           fi
           echo "Branch to deploy: $BRANCH"
@@ -37,66 +41,25 @@ jobs:
           ref: ${{ github.event.inputs.branch }}
           fetch-depth: 0
 
-      - name: Get user email
-        id: user-email
-        run: |
-          EMAIL=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            https://api.github.com/user | jq -r '.email // empty')
-          if [ -z "$EMAIL" ]; then
-            EMAIL=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-              https://api.github.com/user/emails | jq -r '.[] | select(.primary == true) | .email // .[0].email' | head -1)
-          fi
-          if [ -z "$EMAIL" ]; then
-            EMAIL="${{ github.actor }}@users.noreply.github.com"
-          fi
-          echo "email=$EMAIL" >> $GITHUB_OUTPUT
-          echo "User email: $EMAIL"
-
-      - name: Verify email from secrets
+      - name: Verify email from input
         id: verify-email
         run: |
+          INPUT_EMAIL="${{ github.event.inputs.email }}"
           AUTHORIZED_EMAIL="${{ secrets.DEPLOYMENT_EMAIL }}"
-          USER_EMAIL="${{ steps.user-email.outputs.email }}"
-          ACTOR_EMAIL="${{ github.actor }}@users.noreply.github.com"
-          
+
+          echo "Input email: $INPUT_EMAIL"
           echo "Authorized email from secrets: $AUTHORIZED_EMAIL"
-          echo "User email from API: $USER_EMAIL"
-          echo "Actor email: $ACTOR_EMAIL"
-          
+
           if [ -z "$AUTHORIZED_EMAIL" ]; then
-            echo "❌ DEPLOYMENT_EMAIL secret is not set. Please set it in repository settings."
-            exit 1
-          fi
-          
-          # Check if user email matches authorized email or actor matches
-          if [ "$USER_EMAIL" = "$AUTHORIZED_EMAIL" ] || [ "$ACTOR_EMAIL" = "$AUTHORIZED_EMAIL" ]; then
-            echo "✅ Email verification passed"
-            echo "verified=true" >> $GITHUB_OUTPUT
-          else
-            echo "❌ Email verification failed. User email does not match authorized email."
-            echo "User: $USER_EMAIL"
-            echo "Authorized: $AUTHORIZED_EMAIL"
+            echo "DEPLOYMENT_EMAIL secret is not set in repository secrets."
             exit 1
           fi
 
-      - name: Verify deployment access
-        id: verify-access
-        run: |
-          ACTOR="${{ github.actor }}"
-          echo "Verifying deployment access for: $ACTOR"
-          
-          # Check if user has write access (can be admin, maintain, or write)
-          PERMISSION=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/collaborators/$ACTOR/permission" | \
-            jq -r '.permission // empty')
-          
-          echo "User permission level: $PERMISSION"
-          
-          if [ "$PERMISSION" = "admin" ] || [ "$PERMISSION" = "write" ] || [ "$PERMISSION" = "maintain" ]; then
-            echo "✅ Deployment access verified"
-            echo "access_granted=true" >> $GITHUB_OUTPUT
+          if [ "$INPUT_EMAIL" = "$AUTHORIZED_EMAIL" ]; then
+            echo "Email verification passed"
+            echo "verified=true" >> $GITHUB_OUTPUT
           else
-            echo "❌ Insufficient permissions. Required: write, maintain, or admin. Current: $PERMISSION"
+            echo "Email verification failed. Input email does not match authorized email."
             exit 1
           fi
 
@@ -107,7 +70,7 @@ jobs:
       contents: read
       pages: write
       id-token: write
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -117,8 +80,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -130,7 +93,7 @@ jobs:
       - name: Build application
         run: npm run build
 
-      - name: Setup Pages
+      - name: Setup GitHub Pages
         uses: actions/configure-pages@v4
 
       - name: Upload artifact
@@ -147,15 +110,15 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    
+
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-      
+
       - name: Deployment summary
         run: |
-          echo "## 🚀 Deployment Successful" >> $GITHUB_STEP_SUMMARY
+          echo "## Deployment Successful" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "- **Branch**: ${{ github.event.inputs.branch }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Deployed by**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
