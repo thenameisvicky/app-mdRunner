@@ -1,17 +1,21 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { THIRUKKURAL_TAMIL } from "@/app/constants";
+import { THIRUKKURAL_TAMIL, isDevelopment } from "@/app/constants";
 import Tooltip from "../common/Tooltip";
 
 export default function KuralHeader() {
   const [currentKural, setCurrentKural] = useState<number>(
     Math.floor(Math.random() * THIRUKKURAL_TAMIL.length)
   );
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(isDevelopment);
   const [isSetAsDefault, setIsSetAsDefault] = useState(false);
 
   useEffect(() => {
+    if (!isDevelopment) {
+      setIsLoading(false);
+      return;
+    }
     fetch("/api", {
       method: "GET",
       headers: {
@@ -41,6 +45,7 @@ export default function KuralHeader() {
   }, []);
 
   const handleKuralClick = async () => {
+    if (!isDevelopment) return;
     if (isSetAsDefault) {
       setIsSetAsDefault(false);
 
@@ -93,16 +98,18 @@ export default function KuralHeader() {
   return (
     <Tooltip
       content={
-        isSetAsDefault
+        isDevelopment && isSetAsDefault
           ? "Click to Remove from default"
-          : "Click to Set as default"
+          : isDevelopment
+          ? "Click to Set as default"
+          : ""
       }
     >
       <p
-        className={`mt-1 xl font-semi-bold cursor-pointer kural-text text-black ${
-          isSetAsDefault ? "kural-default" : ""
+        className={`mt-1 xl font-semi-bold ${isDevelopment ? "cursor-pointer" : ""} kural-text text-black ${
+          isDevelopment && isSetAsDefault ? "kural-default" : ""
         }`}
-        onClick={handleKuralClick}
+        onClick={isDevelopment ? handleKuralClick : undefined}
       >
         {isLoading ? "Loading..." : THIRUKKURAL_TAMIL[currentKural].split(";")}
       </p>

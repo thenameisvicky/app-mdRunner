@@ -1,3 +1,5 @@
+export const isDevelopment = process.env.NODE_ENV === "development";
+
 export const STAY_HARD_CHAD = [
     "On my path to reach the place where no developer reached",
     "Unshaken — Arthur Morgan",

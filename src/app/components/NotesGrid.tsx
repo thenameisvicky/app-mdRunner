@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import NoteModal from "./NoteModal";
 import Tooltip from "../common/Tooltip";
 import BookmarkIcon from "../common/BookmarkIcon";
+import { isDevelopment } from "@/app/constants";
 
 type Note = {
   slug: string;
@@ -23,6 +24,7 @@ export default function NotesGrid({ notes }: NotesGridProps) {
   );
 
   useEffect(() => {
+    if (!isDevelopment) return;
     fetch("/api", {
       method: "GET",
       headers: {
@@ -49,6 +51,7 @@ export default function NotesGrid({ notes }: NotesGridProps) {
   };
 
   const handleBookmarkClick = async (e: React.MouseEvent, note: Note) => {
+    if (!isDevelopment) return;
     e.stopPropagation();
     const isBookmarked = bookmarkedNotes.has(note.slug);
     const newBookmarked = !isBookmarked;
@@ -95,32 +98,34 @@ export default function NotesGrid({ notes }: NotesGridProps) {
               onClick={() => handleCardClick(note)}
               key={index}
             >
-              <div className="absolute -top-2 right-2 z-20">
-                <Tooltip
-                  content={isBookmarked ? "Remove Bookmark" : "Add Bookmark"}
-                  position="top"
-                >
-                  <div
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleBookmarkClick(e, note);
-                    }}
-                    className="cursor-pointer inline-flex"
+              {isDevelopment && (
+                <div className="absolute -top-2 right-2 z-20">
+                  <Tooltip
+                    content={isBookmarked ? "Remove Bookmark" : "Add Bookmark"}
+                    position="top"
                   >
-                    <BookmarkIcon
-                      isBookmarked={isBookmarked}
-                      size={24}
+                    <div
                       onClick={(e) => {
                         e.stopPropagation();
                         handleBookmarkClick(e, note);
                       }}
-                      aria-label={
-                        isBookmarked ? "Remove bookmark" : "Add bookmark"
-                      }
-                    />
-                  </div>
-                </Tooltip>
-              </div>
+                      className="cursor-pointer inline-flex"
+                    >
+                      <BookmarkIcon
+                        isBookmarked={isBookmarked}
+                        size={24}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleBookmarkClick(e, note);
+                        }}
+                        aria-label={
+                          isBookmarked ? "Remove bookmark" : "Add bookmark"
+                        }
+                      />
+                    </div>
+                  </Tooltip>
+                </div>
+              )}
               <div className="flex items-center gap-5">
                 <h2 className="text-xl font-bold text-[#37352f] m-0 flex-1">
                   {note.frontmatter.filename || note.slug}

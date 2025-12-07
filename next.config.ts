@@ -1,11 +1,15 @@
 import type { NextConfig } from "next";
 
+const isProduction = process.env.NODE_ENV === "production";
+
 const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
-  // output: "export",
-  distDir: "build",
+  ...(isProduction && {
+    output: "export",
+    distDir: "build",
+  }),
 };
 
 export default nextConfig;
