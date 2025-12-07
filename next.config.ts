@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
   ...(isProduction && {
     output: "export",
     distDir: "build",
+    basePath: '/app-mdRunner'
   }),
 };
 
