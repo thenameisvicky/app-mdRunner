@@ -4,10 +4,18 @@ import {
   writePreferences,
 } from "./helpers/userPreference.helper";
 
+type BookmarkUpdateBody = {
+  slug?: string;
+  bookmarked?: boolean;
+  defaultKural?: number | null;
+  folders?: Array<{ id: string; name: string; noteIds: string[] }>;
+  selectedFolderId?: string | null;
+};
+
 export async function GET(request: NextRequest) {
   try {
     const filename = request.headers.get("x-file-name");
-    if (!filename && !filename?.trim()) {
+    if (!filename || !filename.trim()) {
       return NextResponse.json(
         { error: "Filename not provided" },
         { status: 400 }
@@ -27,8 +35,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const filename = request.headers.get("x-file-name");
-    const body: { slug?: string; bookmarked?: boolean; defaultKural?: number } =
-      await request.json();
+    const body = (await request.json()) as BookmarkUpdateBody;
 
     if (!filename || !filename.trim()) {
       return NextResponse.json(
@@ -74,7 +81,17 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         );
       }
-      preferences.defaultKural = body.defaultKural;
+      preferences.defaultKural = body.defaultKural ?? 0;
+    }
+
+    if (body.folders !== undefined) {
+      if (Array.isArray(body.folders)) {
+        preferences.folders = body.folders;
+      }
+    }
+
+    if (body.selectedFolderId !== undefined) {
+      preferences.selectedFolderId = body.selectedFolderId;
     }
 
     writePreferences(preferences, filename);

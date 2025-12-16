@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "MD Runner",
-  description: "Your personal note-taking app with Obsidian integration",
+  description: "Your personal note-taking app",
   icons: {
     icon: '/favicon.svg',
     shortcut: '/favicon.svg',
