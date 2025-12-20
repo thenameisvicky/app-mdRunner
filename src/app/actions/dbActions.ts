@@ -92,38 +92,38 @@ export async function addFolder(folder: {
 
 
 //Todo: Implement Singleton Pattern for DbAction class
-export class DbAction {
-  private action: string;
-  private fileName: string;
-  private upsert?: string;
-  private projection?: string[];
-  private databasePath?: string = path.join(process.cwd(), "src", "database");
+// export class DbAction {
+//   private action: string;
+//   private fileName: string;
+//   private upsert?: string;
+//   private projection?: string[];
+//   private databasePath?: string = path.join(process.cwd(), "src", "database");
 
-  constructor(action: string, fileName: string) {
-    this.action = action;
-    this.fileName = fileName;
-  }
+//   constructor(action: string, fileName: string) {
+//     this.action = action;
+//     this.fileName = fileName;
+//   }
 
-  private read() {
-  }
+//   private read() {
+//   }
 
-  /**
-   * @param action - The database action to perform
-   * @result - The outcome of the database action
-   */
-  public async execute() {
-    switch (this.action) {
-      case DB_ACTIONS.READ: {
-      }
+//   /**
+//    * @param action - The database action to perform
+//    * @result - The outcome of the database action
+//    */
+//   public async execute() {
+//     switch (this.action) {
+//       case DB_ACTIONS.READ: {
+//       }
 
-      case DB_ACTIONS.WRITE: {
-      }
+//       case DB_ACTIONS.WRITE: {
+//       }
 
-      case DB_ACTIONS.UPDATE: {
-      }
+//       case DB_ACTIONS.UPDATE: {
+//       }
 
-      case DB_ACTIONS.DELETE: {
-      }
-    }
-  }
-}
+//       case DB_ACTIONS.DELETE: {
+//       }
+//     }
+//   }
+// }
