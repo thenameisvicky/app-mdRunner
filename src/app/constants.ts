@@ -1,5 +1,3 @@
-export const isDevelopment = process.env.NODE_ENV === "development";
-
 export const STAY_HARD_CHAD = [
     "On my path to reach the place where no developer reached",
     "Unshaken — Arthur Morgan",
@@ -106,6 +104,9 @@ export const STAY_HARD_CHAD = [
     "Measure of a man is what he does with his power"
 ];
 
+export const isDevelopment = 
+  process.env.NODE_ENV === "development" || 
+  (process.env.NODE_ENV === undefined && !process.env.VERCEL);
 
 export const THIRUKKURAL_TAMIL = [
     "உழுதுண்டு வாழ்வாரே வாழ்வார்; மற்றெல்லாம் தொழுதுண்டு பின்செல் பவர்.",

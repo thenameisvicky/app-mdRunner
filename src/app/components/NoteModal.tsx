@@ -5,7 +5,10 @@ import Button from "../common/Button";
 import CollapsibleMarkdown from "./CollapsibleMarkdown";
 import BookmarkIcon from "../common/BookmarkIcon";
 import dayjs from "dayjs";
-import { Note, CreateNoteResponse, UserPreferencesResponse } from "../types";
+import { Note, CreateNoteResponse } from "../types";
+import { readPreferencesFromClient, writePreferencesToClient } from "../helpers/userPreference.client";
+import { getUserPreferences, toggleBookmark } from "../actions/dbActions";
+import { isDevelopment } from "../constants";
 
 type NoteModalProps = {
   note: Note | null;
@@ -36,37 +39,20 @@ export default function NoteModal({ note, isOpen, onClose, mode = "view", onCrea
         const loadBookmarkStatus = async () => {
           if (typeof window === "undefined") return;
           
-          const isDev = process.env.NODE_ENV === "development";
-          if (isDev) {
-            try {
-              const response = await fetch("/api", {
-                method: "GET",
-                headers: {
-                  "x-file-name": "userPreferences",
-                },
-              });
-              if (!response.ok) {
-                throw new Error(`Failed to fetch preferences: ${response.status}`);
-              }
-              const data = (await response.json()) as UserPreferencesResponse;
+          try {
+            if (isDevelopment) {
+              const data = await getUserPreferences();
               if (data.bookMarkedCards && Array.isArray(data.bookMarkedCards)) {
                 setIsBookmarked(data.bookMarkedCards.includes(note?.slug || ""));
               }
-            } catch (err) {
-              console.error("Error loading bookmark status:", err);
-            }
-          } else {
-            try {
-              const stored = localStorage.getItem("userPreferences");
-              if (stored) {
-                const prefs = JSON.parse(stored) as UserPreferencesResponse;
-                if (prefs.bookMarkedCards && Array.isArray(prefs.bookMarkedCards)) {
-                  setIsBookmarked(prefs.bookMarkedCards.includes(note?.slug || ""));
-                }
+            } else {
+              const prefs = readPreferencesFromClient();
+              if (prefs.bookMarkedCards && Array.isArray(prefs.bookMarkedCards)) {
+                setIsBookmarked(prefs.bookMarkedCards.includes(note?.slug || ""));
               }
-            } catch (err) {
-              console.error("Error loading bookmark status from localStorage:", err);
             }
+          } catch (err) {
+            console.error("Error loading bookmark status:", err);
           }
         };
         loadBookmarkStatus();
@@ -91,39 +77,14 @@ export default function NoteModal({ note, isOpen, onClose, mode = "view", onCrea
 
     const newBookmarked = !isBookmarked;
     setIsBookmarked(newBookmarked);
-
-    const isDev = process.env.NODE_ENV === "development";
     
-    if (isDev) {
-      try {
-        const response = await fetch("/api", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-file-name": "userPreferences",
-          },
-          body: JSON.stringify({
-            slug: note.slug,
-            bookmarked: newBookmarked,
-          }),
-        });
-
-        if (!response.ok) {
-          setIsBookmarked(isBookmarked);
-          console.error("Failed to update bookmark");
-        }
-      } catch (error) {
-        setIsBookmarked(isBookmarked);
-        console.error("Error updating bookmark:", error);
-      }
-    } else {
-      // In prod, use localStorage
-      if (typeof window === "undefined") return;
-      try {
-        const stored = localStorage.getItem("userPreferences");
-        const prefs: UserPreferencesResponse = stored 
-          ? (JSON.parse(stored) as UserPreferencesResponse)
-          : { bookMarkedCards: [], defaultKural: 0, folders: [], selectedFolderId: null };
+    try {
+      if (isDevelopment) {
+        await toggleBookmark(note.slug, newBookmarked);
+      } else {
+        // In prod, use localStorage
+        if (typeof window === "undefined") return;
+        const prefs = readPreferencesFromClient();
         
         if (newBookmarked) {
           if (!prefs.bookMarkedCards.includes(note.slug)) {
@@ -133,11 +94,11 @@ export default function NoteModal({ note, isOpen, onClose, mode = "view", onCrea
           prefs.bookMarkedCards = prefs.bookMarkedCards.filter((slug: string) => slug !== note.slug);
         }
         
-        localStorage.setItem("userPreferences", JSON.stringify(prefs));
-      } catch (error) {
-        setIsBookmarked(isBookmarked);
-        console.error("Error updating bookmark in localStorage:", error);
+        writePreferencesToClient(prefs);
       }
+    } catch (error) {
+      setIsBookmarked(isBookmarked);
+      console.error("Error updating bookmark:", error);
     }
   };
 

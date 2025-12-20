@@ -1,117 +1,101 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { THIRUKKURAL_TAMIL, isDevelopment } from "@/app/constants";
+import { THIRUKKURAL_TAMIL } from "@/app/constants";
 import Tooltip from "../common/Tooltip";
+import { readPreferencesFromClient, writePreferencesToClient } from "../helpers/userPreference.client";
+import { getUserPreferences, updateDefaultKural } from "../actions/dbActions";
+import { isDevelopment } from "../constants";
 
 export default function KuralHeader() {
-  const [currentKural, setCurrentKural] = useState<number>(
-    Math.floor(Math.random() * THIRUKKURAL_TAMIL.length)
-  );
-  const [isLoading, setIsLoading] = useState(isDevelopment);
+  // Start with 0 to avoid hydration mismatch - will be updated in useEffect
+  const [currentKural, setCurrentKural] = useState<number>(0);
   const [isSetAsDefault, setIsSetAsDefault] = useState(false);
 
   useEffect(() => {
-    if (!isDevelopment) {
-      setIsLoading(false);
-      return;
-    }
-    fetch("/api", {
-      method: "GET",
-      headers: {
-        "x-file-name": "userPreferences",
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (
-          data.defaultKural !== undefined &&
-          data.defaultKural !== null &&
-          typeof data.defaultKural === "number"
-        ) {
-          setCurrentKural(data.defaultKural);
-          setIsSetAsDefault(true);
+    const loadDefaultKural = async () => {
+      try {
+        if (isDevelopment) {
+          const data = await getUserPreferences();
+          if (
+            data.defaultKural !== undefined &&
+            data.defaultKural !== null &&
+            typeof data.defaultKural === "number" &&
+            data.defaultKural >= 0 &&
+            data.defaultKural < THIRUKKURAL_TAMIL.length
+          ) {
+            setCurrentKural(data.defaultKural);
+            setIsSetAsDefault(true);
+          } else {
+            // Only use random after hydration
+            setCurrentKural(Math.floor(Math.random() * THIRUKKURAL_TAMIL.length));
+            setIsSetAsDefault(false);
+          }
         } else {
-          setIsSetAsDefault(false);
+          if (typeof window === "undefined") return;
+          const prefs = readPreferencesFromClient();
+          if (
+            prefs.defaultKural !== undefined &&
+            prefs.defaultKural !== null &&
+            typeof prefs.defaultKural === "number" &&
+            prefs.defaultKural >= 0 &&
+            prefs.defaultKural < THIRUKKURAL_TAMIL.length
+          ) {
+            setCurrentKural(prefs.defaultKural);
+            setIsSetAsDefault(true);
+          } else {
+            // Only use random after hydration
+            setCurrentKural(Math.floor(Math.random() * THIRUKKURAL_TAMIL.length));
+            setIsSetAsDefault(false);
+          }
         }
-        setIsLoading(false);
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error("Error loading preferences:", err);
+        // Only use random after hydration
         setCurrentKural(Math.floor(Math.random() * THIRUKKURAL_TAMIL.length));
         setIsSetAsDefault(false);
-        setIsLoading(false);
-      });
+      }
+    };
+    loadDefaultKural();
   }, []);
 
   const handleKuralClick = async () => {
-    if (!isDevelopment) return;
-    if (isSetAsDefault) {
-      setIsSetAsDefault(false);
-
-      try {
-        const response = await fetch("/api", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-file-name": "userPreferences",
-          },
-          body: JSON.stringify({
-            defaultKural: null,
-          }),
-        });
-
-        if (!response.ok) {
-          console.error("Failed to remove defaultKural");
-          setIsSetAsDefault(true);
-        }
-      } catch (error) {
-        console.error("Error removing defaultKural:", error);
-        setIsSetAsDefault(true);
+    const newIsSetAsDefault = !isSetAsDefault;
+    setIsSetAsDefault(newIsSetAsDefault);
+    
+    try {
+      if (isDevelopment) {
+        await updateDefaultKural(newIsSetAsDefault ? currentKural : null);
+      } else {
+        if (typeof window === "undefined") return;
+        const prefs = readPreferencesFromClient();
+        prefs.defaultKural = newIsSetAsDefault ? currentKural : 0;
+        writePreferencesToClient(prefs);
       }
-    } else {
-      setIsSetAsDefault(true);
-
-      try {
-        const response = await fetch("/api", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-file-name": "userPreferences",
-          },
-          body: JSON.stringify({
-            defaultKural: currentKural,
-          }),
-        });
-
-        if (!response.ok) {
-          console.error("Failed to update defaultKural");
-          setIsSetAsDefault(false);
-        }
-      } catch (error) {
-        console.error("Error updating defaultKural:", error);
-        setIsSetAsDefault(false);
-      }
+    } catch (error) {
+      setIsSetAsDefault(!newIsSetAsDefault);
+      console.error(
+        `Error ${newIsSetAsDefault ? "setting" : "removing"} defaultKural:`,
+        error
+      );
     }
   };
 
   return (
     <Tooltip
       content={
-        isDevelopment && isSetAsDefault
+        isSetAsDefault
           ? "Click to Remove from default"
-          : isDevelopment
-          ? "Click to Set as default"
-          : ""
+          : "Click to Set as default"
       }
     >
       <p
-        className={`mt-1 xl font-semi-bold ${isDevelopment ? "cursor-pointer" : ""} kural-text text-black ${
-          isDevelopment && isSetAsDefault ? "kural-default" : ""
+        className={`mt-1 xl font-semi-bold cursor-pointer kural-text text-black ${
+          isSetAsDefault ? "kural-default" : ""
         }`}
-        onClick={isDevelopment ? handleKuralClick : undefined}
+        onClick={handleKuralClick}
       >
-        {isLoading ? "Loading..." : THIRUKKURAL_TAMIL[currentKural].split(";")}
+        {THIRUKKURAL_TAMIL[currentKural].split(";")}
       </p>
     </Tooltip>
   );

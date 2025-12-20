@@ -1,5 +1,3 @@
-// Shared types across the application
-
 export type Note = {
   slug: string;
   frontmatter: Record<string, string>;

@@ -5,7 +5,9 @@ import NoteModal from "./NoteModal";
 import Tooltip from "../common/Tooltip";
 import BookmarkIcon from "../common/BookmarkIcon";
 import { isDevelopment } from "@/app/constants";
-import { Note, UserPreferencesResponse } from "../types";
+import { Note } from "../types";
+import { readPreferencesFromClient, writePreferencesToClient } from "../helpers/userPreference.client";
+import { getUserPreferences, toggleBookmark } from "../actions/dbActions";
 
 type NotesGridProps = {
   notes: Note[];
@@ -20,39 +22,23 @@ export default function NotesGrid({ notes }: NotesGridProps) {
 
   useEffect(() => {
     const loadBookmarks = async () => {
-      if (isDevelopment) {
-        // In dev, fetch from API
-        try {
-          const response = await fetch("/api", {
-            method: "GET",
-            headers: {
-              "x-file-name": "userPreferences",
-            },
-          });
-          if (!response.ok) {
-            throw new Error(`Failed to fetch preferences: ${response.status}`);
-          }
-          const data = (await response.json()) as UserPreferencesResponse;
+      try {
+        if (isDevelopment) {
+          // In dev, use server action
+          const data = await getUserPreferences();
           if (data.bookMarkedCards && Array.isArray(data.bookMarkedCards)) {
             setBookmarkedNotes(new Set(data.bookMarkedCards));
           }
-        } catch (err) {
-          console.error("Error loading preferences:", err);
-        }
-      } else {
-        // In prod, read from localStorage
-        if (typeof window === "undefined") return;
-        try {
-          const stored = localStorage.getItem("userPreferences");
-          if (stored) {
-            const prefs = JSON.parse(stored) as UserPreferencesResponse;
-            if (prefs.bookMarkedCards && Array.isArray(prefs.bookMarkedCards)) {
-              setBookmarkedNotes(new Set(prefs.bookMarkedCards));
-            }
+        } else {
+          // In prod, read from localStorage
+          if (typeof window === "undefined") return;
+          const prefs = readPreferencesFromClient();
+          if (prefs.bookMarkedCards && Array.isArray(prefs.bookMarkedCards)) {
+            setBookmarkedNotes(new Set(prefs.bookMarkedCards));
           }
-        } catch (err) {
-          console.error("Error loading bookmarks from localStorage:", err);
         }
+      } catch (err) {
+        console.error("Error loading preferences:", err);
       }
     };
     loadBookmarks();
@@ -81,37 +67,14 @@ export default function NotesGrid({ notes }: NotesGridProps) {
     }
     setBookmarkedNotes(newBookmarkedSet);
 
-    if (isDevelopment) {
-      // In dev, use API
-      try {
-        const response = await fetch("/api", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-file-name": "userPreferences",
-          },
-          body: JSON.stringify({
-            slug: note.slug,
-            bookmarked: newBookmarked,
-          }),
-        });
-
-        if (!response.ok) {
-          setBookmarkedNotes(bookmarkedNotes);
-          console.error("Failed to update bookmark");
-        }
-      } catch (error) {
-        setBookmarkedNotes(bookmarkedNotes);
-        console.error("Error updating bookmark:", error);
-      }
-    } else {
-      // In prod, use localStorage
-      if (typeof window === "undefined") return;
-      try {
-        const stored = localStorage.getItem("userPreferences");
-        const prefs: UserPreferencesResponse = stored 
-          ? (JSON.parse(stored) as UserPreferencesResponse)
-          : { bookMarkedCards: [], defaultKural: 0, folders: [], selectedFolderId: null };
+    try {
+      if (isDevelopment) {
+        // In dev, use server action
+        await toggleBookmark(note.slug, newBookmarked);
+      } else {
+        // In prod, use localStorage
+        if (typeof window === "undefined") return;
+        const prefs = readPreferencesFromClient();
         
         if (newBookmarked) {
           if (!prefs.bookMarkedCards.includes(note.slug)) {
@@ -121,11 +84,11 @@ export default function NotesGrid({ notes }: NotesGridProps) {
           prefs.bookMarkedCards = prefs.bookMarkedCards.filter((slug: string) => slug !== note.slug);
         }
         
-        localStorage.setItem("userPreferences", JSON.stringify(prefs));
-      } catch (error) {
-        setBookmarkedNotes(bookmarkedNotes);
-        console.error("Error updating bookmark in localStorage:", error);
+        writePreferencesToClient(prefs);
       }
+    } catch (error) {
+      setBookmarkedNotes(bookmarkedNotes);
+      console.error("Error updating bookmark:", error);
     }
   };
 

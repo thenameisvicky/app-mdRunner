@@ -6,8 +6,17 @@ import KuralHeader from "./components/KuralHeader";
 import NoteModal from "./components/NoteModal";
 import Button from "./common/Button";
 import ToastContainer, { useToast } from "./common/ToastContainer";
-import { Note, Folder, NotesStorage, UserPreferencesResponse, CreateNoteResponse, NotesApiResponse, NoteData, ApiResponse } from "./types";
+import {
+  Note,
+  Folder,
+  NotesStorage,
+  CreateNoteResponse,
+} from "./types";
 import { isDevelopment } from "./constants";
+import { readPreferencesFromClient, writePreferencesToClient } from "./helpers/userPreference.client";
+import { getUserPreferences, updateSelectedFolder as updateSelectedFolderAction, addFolder as addFolderAction } from "./actions/dbActions";
+import { getAllNotes as getAllNotesAction, createNote as createNoteAction } from "./actions/vaultActions";
+import { getAllNotesFromLocalStorage, createNoteInLocalStorage } from "./helpers/markdown.client";
 
 export default function Home() {
   const [allMarkDowns, setAllMarkDowns] = useState<Note[]>([]);
@@ -40,32 +49,18 @@ export default function Home() {
   }, [selectedFolderId, folders, allMarkDowns]);
 
   const loadNotes = async (): Promise<void> => {
-    if (isDevelopment) {
-      // In dev, fetch from API (server-side)
-      try {
-        const response = await fetch("/api/notes");
-        if (!response.ok) {
-          throw new Error(`Failed to fetch notes: ${response.status}`);
-        }
-        const data = (await response.json()) as NotesApiResponse;
-        if (data.notes && Array.isArray(data.notes)) {
-          setAllMarkDowns(data.notes);
-        }
-      } catch (error) {
-        console.error("Error loading notes:", error);
-      }
-    } else {
-      // In prod, read from localStorage directly
-      if (typeof window === "undefined") return;
-
-      try {
-        const stored = localStorage.getItem("notes");
-        if (!stored) {
-          // On first load in prod, create one empty note template
+    try {
+      if (isDevelopment) {
+        const notes = await getAllNotesAction();
+        setAllMarkDowns(notes);
+      } else {
+        if (typeof window === "undefined") return;
+        const notes = getAllNotesFromLocalStorage();
+        if (notes.length === 0) {
           const defaultNote: Note = {
-            slug: "welcome",
+            slug: "Hello",
             frontmatter: {
-              title: "Welcome",
+              title: "Hello",
               date: new Date().toLocaleDateString("en-US", {
                 year: "numeric",
                 month: "long",
@@ -73,10 +68,10 @@ export default function Home() {
               }),
             },
             content:
-              "# Welcome\n\nThis is your first note. Create more notes using the 'Create Note' button.",
+              "# Hello\n\nThis is your first note. Create more notes using the 'Create Note' button.",
           };
           const notesData: NotesStorage = {
-            welcome: {
+            hello: {
               title: defaultNote.frontmatter.title,
               createdDate: defaultNote.frontmatter.date,
               content: defaultNote.content,
@@ -85,38 +80,18 @@ export default function Home() {
           localStorage.setItem("notes", JSON.stringify(notesData));
           setAllMarkDowns([defaultNote]);
         } else {
-          const notesData = JSON.parse(stored) as NotesStorage;
-          const notes: Note[] = Object.entries(notesData).map(
-            ([slug, data]: [string, NoteData]) => ({
-              slug,
-              frontmatter: {
-                title: data.title,
-                date: data.createdDate,
-              },
-              content: data.content,
-            })
-          );
           setAllMarkDowns(notes);
         }
-      } catch (error) {
-        console.error("Error loading notes from localStorage:", error);
       }
+    } catch (error) {
+      console.error("Error loading notes:", error);
     }
   };
 
   const loadFolders = async (): Promise<void> => {
-    if (isDevelopment) {
-      try {
-        const response = await fetch("/api", {
-          method: "GET",
-          headers: {
-            "x-file-name": "userPreferences",
-          },
-        });
-        if (!response.ok) {
-          throw new Error(`Failed to fetch preferences: ${response.status}`);
-        }
-        const data = (await response.json()) as UserPreferencesResponse;
+    try {
+      if (isDevelopment) {
+        const data = await getUserPreferences();
         if (Array.isArray(data.folders)) {
           setFolders(data.folders);
           if (
@@ -126,95 +101,55 @@ export default function Home() {
             setSelectedFolderId(data.selectedFolderId);
           } else if (data.folders.length > 0) {
             setSelectedFolderId(data.folders[0].id);
-            updateSelectedFolder(data.folders[0].id);
+            await updateSelectedFolder(data.folders[0].id);
           }
         }
-      } catch (error) {
-        console.error("Error loading folders:", error);
-      }
-    } else {
-      // In prod, read from localStorage
-      if (typeof window === "undefined") return;
-
-      try {
-        const stored = localStorage.getItem("userPreferences");
-        if (stored) {
-          const prefs = JSON.parse(stored) as UserPreferencesResponse;
-          if (Array.isArray(prefs.folders)) {
-            setFolders(prefs.folders);
-            if (
-              prefs.selectedFolderId &&
-              prefs.folders.find((f: Folder) => f.id === prefs.selectedFolderId)
-            ) {
-              setSelectedFolderId(prefs.selectedFolderId);
-            } else if (prefs.folders.length > 0) {
-              setSelectedFolderId(prefs.folders[0].id);
-              updateSelectedFolder(prefs.folders[0].id);
-            }
+      } else {
+        if (typeof window === "undefined") return;
+        const prefs = readPreferencesFromClient();
+        if (Array.isArray(prefs.folders)) {
+          setFolders(prefs.folders);
+          if (
+            prefs.selectedFolderId &&
+            prefs.folders.find((f: Folder) => f.id === prefs.selectedFolderId)
+          ) {
+            setSelectedFolderId(prefs.selectedFolderId);
+          } else if (prefs.folders.length > 0) {
+            setSelectedFolderId(prefs.folders[0].id);
+            await updateSelectedFolder(prefs.folders[0].id);
           }
         }
-      } catch (error) {
-        console.error("Error loading folders:", error);
       }
+    } catch (error) {
+      console.error("Error loading folders:", error);
     }
   };
 
-  const updateSelectedFolder = async (folderId: string | null): Promise<void> => {
+  const updateSelectedFolder = async (
+    folderId: string | null
+  ): Promise<void> => {
     setSelectedFolderId(folderId);
 
-    if (isDevelopment) {
-      // In dev, update via API (userPreferences.json)
-      try {
-        const response = await fetch("/api", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-file-name": "userPreferences",
-          },
-          body: JSON.stringify({
-            selectedFolderId: folderId,
-          }),
-        });
-        if (!response.ok) {
-          console.error("Failed to update selected folder");
-        }
-      } catch (error) {
-        console.error("Error updating selected folder:", error);
-      }
-    } else {
-      // In prod, update localStorage
-      if (typeof window === "undefined") return;
-
-      try {
-        const stored = localStorage.getItem("userPreferences");
-        const prefs: UserPreferencesResponse = stored
-          ? (JSON.parse(stored) as UserPreferencesResponse)
-          : { bookMarkedCards: [], defaultKural: 0, folders: [], selectedFolderId: null };
+    try {
+      if (isDevelopment) {
+        await updateSelectedFolderAction(folderId);
+      } else {
+        if (typeof window === "undefined") return;
+        const prefs = readPreferencesFromClient();
         prefs.selectedFolderId = folderId;
-        localStorage.setItem("userPreferences", JSON.stringify(prefs));
-      } catch (error) {
-        console.error("Error updating selected folder:", error);
+        writePreferencesToClient(prefs);
       }
+    } catch (error) {
+      console.error("Error updating selected folder:", error);
     }
   };
 
   const handleCreateNote = async (
     title: string
   ): Promise<CreateNoteResponse> => {
-    if (isDevelopment) {
-      try {
-        const response = await fetch("/api/notes", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ title }),
-        });
-        if (!response.ok) {
-          throw new Error(`Failed to create note: ${response.status}`);
-        }
-        const result = (await response.json()) as CreateNoteResponse;
-
+    try {
+      if (isDevelopment) {
+        const result = await createNoteAction(title);
         if (result.success) {
           showToast("success", "Note created successfully", 5000);
           loadNotes();
@@ -227,144 +162,65 @@ export default function Home() {
           }
           return { success: false, error: result.error };
         }
-      } catch {
-        showToast("error", "Failed to create note", 5000);
-        return { success: false, error: "Failed to create note" };
-      }
-    } else {
-      // In prod, use localStorage directly
-      if (typeof window === "undefined") {
-        return { success: false, error: "Window not available" };
-      }
-
-      try {
-        const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-        const stored = localStorage.getItem("notes");
-        const notesData: NotesStorage = stored ? (JSON.parse(stored) as NotesStorage) : {};
-
-        if (notesData[slug]) {
-          showToast("warning", "Note with this title already exists", 5000);
-          return {
-            success: false,
-            error: "Note with this title already exists",
-          };
+      } else {
+        if (typeof window === "undefined") {
+          return { success: false, error: "Window not available" };
         }
-
-        const createdDate = new Date().toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        });
-        notesData[slug] = {
-          title,
-          createdDate,
-          content: `# ${title}\n\nYour content here...`,
-        };
-
-        localStorage.setItem("notes", JSON.stringify(notesData));
-        showToast("success", "Note created successfully", 5000);
-        loadNotes();
-        return { success: true };
-      } catch (error) {
-        console.error("Error creating note:", error);
-        showToast("error", "Failed to create note", 5000);
-        return { success: false, error: "Failed to create note" };
+        const result = createNoteInLocalStorage(title);
+        if (result.success) {
+          showToast("success", "Note created successfully", 5000);
+          loadNotes();
+          return { success: true };
+        } else {
+          if (result.error?.includes("already exists")) {
+            showToast("warning", "Note with this title already exists", 5000);
+          } else {
+            showToast("error", result.error || "Failed to create note", 5000);
+          }
+          return { success: false, error: result.error };
+        }
       }
+    } catch (error) {
+      console.error("Error creating note:", error);
+      showToast("error", "Failed to create note", 5000);
+      return { success: false, error: "Failed to create note" };
     }
   };
 
-  const handleCreateFolder = async (name: string, noteIds: string[]): Promise<void> => {
+  const handleCreateFolder = async (
+    name: string,
+    noteIds: string[]
+  ): Promise<void> => {
     const newFolder: Folder = {
       id: Math.random().toString(36).substring(2, 9),
       name,
       noteIds,
     };
 
-    if (isDevelopment) {
-        try {
-          const response = await fetch("/api", {
-            method: "GET",
-            headers: {
-              "x-file-name": "userPreferences",
-            },
-          });
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch preferences: ${response.status}`);
-        }
-
-        const data = (await response.json()) as UserPreferencesResponse;
-        console.log("Current preferences:", data);
-
-        const currentFolders = Array.isArray(data.folders) ? data.folders : [];
-        const updatedFolders = [...currentFolders, newFolder];
-        const selectedId = data.selectedFolderId || newFolder.id;
-
-        console.log("Updating with folders:", updatedFolders);
-
-        // Update preferences
-        const updateResponse = await fetch("/api", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-file-name": "userPreferences",
-          },
-          body: JSON.stringify({
-            folders: updatedFolders,
-            selectedFolderId: selectedId,
-          }),
-        });
-
-        console.log("Update response status:", updateResponse.status);
-
-        if (!updateResponse.ok) {
-          const errorData = await updateResponse.json().catch(() => ({}));
-          throw new Error(errorData.error || `HTTP ${updateResponse.status}`);
-        }
-
-        const updateResult = (await updateResponse.json()) as ApiResponse;
-        console.log("Update result:", updateResult);
-
-        if (updateResult.success !== false) {
-          // Reload folders from server to ensure consistency
-          await loadFolders();
-          setIsFolderModalOpen(false);
-          showToast("success", "Folder created successfully", 5000);
-        } else {
-          const errorMsg = updateResult.error || "Failed to create folder";
-          console.error("Folder creation failed:", errorMsg);
-          showToast("error", errorMsg, 5000);
-        }
-      } catch (error) {
-        console.error("Error creating folder:", error);
-        const errorMessage =
-          error instanceof Error ? error.message : "Failed to create folder";
-        showToast("error", errorMessage, 5000);
-      }
-    } else {
-      // In prod, update localStorage
-      if (typeof window === "undefined") return;
-
-      try {
-        const stored = localStorage.getItem("userPreferences");
-        const prefs: UserPreferencesResponse = stored
-          ? (JSON.parse(stored) as UserPreferencesResponse)
-          : { bookMarkedCards: [], defaultKural: 0, folders: [], selectedFolderId: null };
-
+    try {
+      if (isDevelopment) {
+        await addFolderAction(newFolder);
+        await loadFolders();
+        setIsFolderModalOpen(false);
+        showToast("success", "Folder created successfully", 5000);
+      } else {
+        if (typeof window === "undefined") return;
+        const prefs = readPreferencesFromClient();
         prefs.folders = [...(prefs.folders || []), newFolder];
         if (!prefs.selectedFolderId) {
           prefs.selectedFolderId = newFolder.id;
           setSelectedFolderId(newFolder.id);
         }
-
-        localStorage.setItem("userPreferences", JSON.stringify(prefs));
+        writePreferencesToClient(prefs);
         setFolders(prefs.folders);
         setIsFolderModalOpen(false);
         showToast("success", "Folder created successfully", 5000);
-      } catch (error) {
-        console.error("Error creating folder:", error);
-        showToast("error", "Failed to create folder", 5000);
       }
+    } catch (error) {
+      console.error("Error creating folder:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to create folder";
+      showToast("error", errorMessage, 5000);
     }
   };
 
