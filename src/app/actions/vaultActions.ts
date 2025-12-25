@@ -4,7 +4,7 @@ import fs from "fs";
 import matter from "gray-matter";
 import dayjs from "dayjs";
 
-const vaultPath = path.join(process.cwd(), "vault");
+const vaultPath = path.join(process.cwd(), "src", "vault");
 
 export async function getAllNotes(): Promise<Note[]> {
   try {

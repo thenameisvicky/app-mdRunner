@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "NODE_ENV=development next dev --turbopack",
     "dev:debug": "NODE_OPTIONS='--inspect' next dev --turbopack",
+    "prebuild": "node scripts/generate-vault-bundle.js",
     "build": "NODE_ENV=production next build",
     "start": "next start",
     "lint": "eslint"

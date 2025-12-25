@@ -48,12 +48,12 @@ export default function Toast({
 
   return (
     <div
-      className={`fixed top-20 right-4 z-[10000] px-4 py-3 rounded-lg shadow-[0_4px_12px_rgba(15,15,15,0.15)] min-w-[250px] max-w-[400px] transition-all duration-500 ease-out ${
+      className={`px-4 py-3 rounded-lg shadow-[0_4px_12px_rgba(15,15,15,0.15)] min-w-[250px] max-w-[400px] transition-all duration-500 ease-out ${
         typeStyles[type]
       } ${
         isVisible && !isExiting
-          ? "translate-x-0 opacity-100"
-          : "translate-x-full opacity-0"
+          ? "translate-y-0 opacity-100"
+          : "-translate-y-full opacity-0"
       }`}
     >
       <div className="flex items-center gap-3">

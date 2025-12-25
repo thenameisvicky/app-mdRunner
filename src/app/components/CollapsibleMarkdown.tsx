@@ -91,6 +91,7 @@ function CollapsibleSection({
           className={`collapsible-content ${isExpanded ? "block" : "hidden"}`}
           style={{
             paddingLeft: `${depth * 8 + 24}px`,
+            textAlign: "left",
           }}
         >
           {node.children.map((child) => {

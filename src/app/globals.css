@@ -206,6 +206,11 @@ body {
 
 .collapsible-markdown {
   width: 100%;
+  text-align: left;
+}
+
+.collapsible-markdown * {
+  text-align: left;
 }
 
 .collapsible-section {
@@ -215,6 +220,8 @@ body {
 .collapsible-heading-wrapper {
   position: relative;
   transition: background-color 0.1s ease;
+  text-align: left;
+  justify-content: flex-start;
 }
 
 .collapsible-heading-wrapper:hover {
@@ -238,6 +245,8 @@ body {
 .collapsible-content {
   overflow: hidden;
   transition: all 0.2s ease;
+  text-align: left;
+  width: 100%;
 }
 
 .collapsible-content .markdown-content-block {
@@ -287,6 +296,214 @@ body {
 .collapsible-content .markdown-content-block pre code {
   background: none;
   padding: 0;
+}
+
+/* GitHub-like markdown styles */
+.markdown-content-block,
+.collapsible-content .markdown-content-block {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  font-size: 16px;
+  line-height: 1.5;
+  word-wrap: break-word;
+  color: #24292f;
+  text-align: left;
+  width: 100%;
+  max-width: 100%;
+}
+
+.markdown-content-block h1,
+.collapsible-content .markdown-content-block h1 {
+  font-size: 2em;
+  font-weight: 600;
+  margin-top: 24px;
+  margin-bottom: 16px;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid #d0d7de;
+  color: #24292f;
+  text-align: left;
+}
+
+.markdown-content-block h2,
+.collapsible-content .markdown-content-block h2 {
+  font-size: 1.5em;
+  font-weight: 600;
+  margin-top: 24px;
+  margin-bottom: 16px;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid #d0d7de;
+  color: #24292f;
+  text-align: left;
+}
+
+.markdown-content-block h3,
+.collapsible-content .markdown-content-block h3 {
+  font-size: 1.25em;
+  font-weight: 600;
+  margin-top: 24px;
+  margin-bottom: 16px;
+  color: #24292f;
+  text-align: left;
+}
+
+.markdown-content-block h4,
+.collapsible-content .markdown-content-block h4 {
+  font-size: 1em;
+  font-weight: 600;
+  margin-top: 24px;
+  margin-bottom: 16px;
+  color: #24292f;
+  text-align: left;
+}
+
+.markdown-content-block p,
+.collapsible-content .markdown-content-block p {
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #24292f;
+  text-align: left;
+}
+
+.markdown-content-block ul,
+.markdown-content-block ol,
+.collapsible-content .markdown-content-block ul,
+.collapsible-content .markdown-content-block ol {
+  margin-top: 0;
+  margin-bottom: 16px;
+  padding-left: 2em;
+  text-align: left;
+}
+
+.markdown-content-block li,
+.collapsible-content .markdown-content-block li {
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+  color: #24292f;
+  text-align: left;
+}
+
+.markdown-content-block code,
+.collapsible-content .markdown-content-block code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 85%;
+  background-color: rgba(175, 184, 193, 0.2);
+  padding: 0.2em 0.4em;
+  border-radius: 6px;
+  color: #24292f;
+}
+
+.markdown-content-block pre,
+.collapsible-content .markdown-content-block pre {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 85%;
+  line-height: 1.45;
+  background-color: #f6f8fa;
+  border-radius: 6px;
+  padding: 16px;
+  overflow: auto;
+  margin-top: 0;
+  margin-bottom: 16px;
+  border: 1px solid #d0d7de;
+}
+
+.markdown-content-block pre code,
+.collapsible-content .markdown-content-block pre code {
+  display: inline;
+  max-width: auto;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  line-height: inherit;
+  word-wrap: normal;
+  background-color: transparent;
+  border: 0;
+  color: #24292f;
+}
+
+.markdown-content-block blockquote,
+.collapsible-content .markdown-content-block blockquote {
+  padding: 0 1em;
+  color: #656d76;
+  border-left: 0.25em solid #d0d7de;
+  margin: 0 0 16px 0;
+}
+
+.markdown-content-block table,
+.collapsible-content .markdown-content-block table {
+  border-spacing: 0;
+  border-collapse: collapse;
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  overflow: auto;
+  margin-top: 0;
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.markdown-content-block table th,
+.markdown-content-block table td,
+.collapsible-content .markdown-content-block table th,
+.collapsible-content .markdown-content-block table td {
+  padding: 6px 13px;
+  border: 1px solid #d0d7de;
+}
+
+.markdown-content-block table th,
+.collapsible-content .markdown-content-block table th {
+  font-weight: 600;
+  background-color: #f6f8fa;
+}
+
+.markdown-content-block table tr,
+.collapsible-content .markdown-content-block table tr {
+  background-color: #ffffff;
+  border-top: 1px solid #d0d7de;
+}
+
+.markdown-content-block table tr:nth-child(2n),
+.collapsible-content .markdown-content-block table tr:nth-child(2n) {
+  background-color: #f6f8fa;
+}
+
+.markdown-content-block a,
+.collapsible-content .markdown-content-block a {
+  color: #0969da;
+  text-decoration: none;
+}
+
+.markdown-content-block a:hover,
+.collapsible-content .markdown-content-block a:hover {
+  text-decoration: underline;
+}
+
+.markdown-content-block hr,
+.collapsible-content .markdown-content-block hr {
+  height: 0.25em;
+  padding: 0;
+  margin: 24px 0;
+  background-color: #d0d7de;
+  border: 0;
+}
+
+.markdown-content-block img,
+.collapsible-content .markdown-content-block img {
+  max-width: 100%;
+  box-sizing: content-box;
+  background-color: #ffffff;
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.markdown-content-block strong,
+.collapsible-content .markdown-content-block strong {
+  font-weight: 600;
+  color: #24292f;
+}
+
+.markdown-content-block em,
+.collapsible-content .markdown-content-block em {
+  font-style: italic;
+  color: #24292f;
 }
 
 .notion-modal {

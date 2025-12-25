@@ -12,11 +12,11 @@ import {
   NotesStorage,
   CreateNoteResponse,
 } from "./types";
-import { isDevelopment } from "./constants";
 import { readPreferencesFromClient, writePreferencesToClient } from "./helpers/userPreference.client";
-import { getUserPreferences, updateSelectedFolder as updateSelectedFolderAction, addFolder as addFolderAction } from "./actions/dbActions";
-import { getAllNotes as getAllNotesAction, createNote as createNoteAction } from "./actions/vaultActions";
 import { getAllNotesFromLocalStorage, createNoteInLocalStorage } from "./helpers/markdown.client";
+import { DbAction } from "indexdb-action/dist/DbAction";
+import { DB_ACTIONS } from "indexdb-action/dist/constants";
+import { openDatabase, OBJECT_STORES } from "./helpers/dbInit.client";
 
 export default function Home() {
   const [allMarkDowns, setAllMarkDowns] = useState<Note[]>([]);
@@ -50,38 +50,39 @@ export default function Home() {
 
   const loadNotes = async (): Promise<void> => {
     try {
-      if (isDevelopment) {
-        const notes = await getAllNotesAction();
-        setAllMarkDowns(notes);
+      if (typeof window === "undefined") return;
+      const notes = await getAllNotesFromLocalStorage();
+      if (notes.length === 0) {
+        const defaultNote: Note = {
+          slug: "Hello",
+          frontmatter: {
+            title: "Hello",
+            date: new Date().toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }),
+          },
+          content:
+            "# Hello\n\nThis is your first note. Create more notes using the 'Create Note' button.",
+        };
+        // Initialize default note in IndexedDB
+        const database = await openDatabase();
+        const writeAction = new DbAction<
+          { slug: string; data: { title: string; createdDate: string; content: string } },
+          { slug: string; data: { title: string; createdDate: string; content: string } }
+        >(DB_ACTIONS.WRITE, database, OBJECT_STORES.NOTES);
+        await writeAction.setDocumentData({
+          slug: "hello",
+          data: {
+            title: defaultNote.frontmatter.title,
+            createdDate: defaultNote.frontmatter.date,
+            content: defaultNote.content,
+          },
+        }).execute();
+        setAllMarkDowns([defaultNote]);
       } else {
-        if (typeof window === "undefined") return;
-        const notes = getAllNotesFromLocalStorage();
-        if (notes.length === 0) {
-          const defaultNote: Note = {
-            slug: "Hello",
-            frontmatter: {
-              title: "Hello",
-              date: new Date().toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              }),
-            },
-            content:
-              "# Hello\n\nThis is your first note. Create more notes using the 'Create Note' button.",
-          };
-          const notesData: NotesStorage = {
-            hello: {
-              title: defaultNote.frontmatter.title,
-              createdDate: defaultNote.frontmatter.date,
-              content: defaultNote.content,
-            },
-          };
-          localStorage.setItem("notes", JSON.stringify(notesData));
-          setAllMarkDowns([defaultNote]);
-        } else {
-          setAllMarkDowns(notes);
-        }
+        setAllMarkDowns(notes);
       }
     } catch (error) {
       console.error("Error loading notes:", error);
@@ -90,34 +91,18 @@ export default function Home() {
 
   const loadFolders = async (): Promise<void> => {
     try {
-      if (isDevelopment) {
-        const data = await getUserPreferences();
-        if (Array.isArray(data.folders)) {
-          setFolders(data.folders);
-          if (
-            data.selectedFolderId &&
-            data.folders.find((f: Folder) => f.id === data.selectedFolderId)
-          ) {
-            setSelectedFolderId(data.selectedFolderId);
-          } else if (data.folders.length > 0) {
-            setSelectedFolderId(data.folders[0].id);
-            await updateSelectedFolder(data.folders[0].id);
-          }
-        }
-      } else {
-        if (typeof window === "undefined") return;
-        const prefs = readPreferencesFromClient();
-        if (Array.isArray(prefs.folders)) {
-          setFolders(prefs.folders);
-          if (
-            prefs.selectedFolderId &&
-            prefs.folders.find((f: Folder) => f.id === prefs.selectedFolderId)
-          ) {
-            setSelectedFolderId(prefs.selectedFolderId);
-          } else if (prefs.folders.length > 0) {
-            setSelectedFolderId(prefs.folders[0].id);
-            await updateSelectedFolder(prefs.folders[0].id);
-          }
+      if (typeof window === "undefined") return;
+      const prefs = await readPreferencesFromClient();
+      if (Array.isArray(prefs.folders)) {
+        setFolders(prefs.folders);
+        if (
+          prefs.selectedFolderId &&
+          prefs.folders.find((f: Folder) => f.id === prefs.selectedFolderId)
+        ) {
+          setSelectedFolderId(prefs.selectedFolderId);
+        } else if (prefs.folders.length > 0) {
+          setSelectedFolderId(prefs.folders[0].id);
+          await updateSelectedFolder(prefs.folders[0].id);
         }
       }
     } catch (error) {
@@ -131,14 +116,10 @@ export default function Home() {
     setSelectedFolderId(folderId);
 
     try {
-      if (isDevelopment) {
-        await updateSelectedFolderAction(folderId);
-      } else {
-        if (typeof window === "undefined") return;
-        const prefs = readPreferencesFromClient();
-        prefs.selectedFolderId = folderId;
-        writePreferencesToClient(prefs);
-      }
+      if (typeof window === "undefined") return;
+      const prefs = await readPreferencesFromClient();
+      prefs.selectedFolderId = folderId;
+      await writePreferencesToClient(prefs);
     } catch (error) {
       console.error("Error updating selected folder:", error);
     }
@@ -148,37 +129,21 @@ export default function Home() {
     title: string
   ): Promise<CreateNoteResponse> => {
     try {
-      if (isDevelopment) {
-        const result = await createNoteAction(title);
-        if (result.success) {
-          showToast("success", "Note created successfully", 5000);
-          loadNotes();
-          return { success: true };
-        } else {
-          if (result.error?.includes("already exists")) {
-            showToast("warning", "Note with this title already exists", 5000);
-          } else {
-            showToast("error", result.error || "Failed to create note", 5000);
-          }
-          return { success: false, error: result.error };
-        }
+      if (typeof window === "undefined") {
+        return { success: false, error: "Window not available" };
+      }
+      const result = await createNoteInLocalStorage(title);
+      if (result.success) {
+        showToast("success", "Note created successfully", 5000);
+        loadNotes();
+        return { success: true };
       } else {
-        if (typeof window === "undefined") {
-          return { success: false, error: "Window not available" };
-        }
-        const result = createNoteInLocalStorage(title);
-        if (result.success) {
-          showToast("success", "Note created successfully", 5000);
-          loadNotes();
-          return { success: true };
+        if (result.error?.includes("already exists")) {
+          showToast("warning", "Note with this title already exists", 5000);
         } else {
-          if (result.error?.includes("already exists")) {
-            showToast("warning", "Note with this title already exists", 5000);
-          } else {
-            showToast("error", result.error || "Failed to create note", 5000);
-          }
-          return { success: false, error: result.error };
+          showToast("error", result.error || "Failed to create note", 5000);
         }
+        return { success: false, error: result.error };
       }
     } catch (error) {
       console.error("Error creating note:", error);
@@ -198,24 +163,17 @@ export default function Home() {
     };
 
     try {
-      if (isDevelopment) {
-        await addFolderAction(newFolder);
-        await loadFolders();
-        setIsFolderModalOpen(false);
-        showToast("success", "Folder created successfully", 5000);
-      } else {
-        if (typeof window === "undefined") return;
-        const prefs = readPreferencesFromClient();
-        prefs.folders = [...(prefs.folders || []), newFolder];
-        if (!prefs.selectedFolderId) {
-          prefs.selectedFolderId = newFolder.id;
-          setSelectedFolderId(newFolder.id);
-        }
-        writePreferencesToClient(prefs);
-        setFolders(prefs.folders);
-        setIsFolderModalOpen(false);
-        showToast("success", "Folder created successfully", 5000);
+      if (typeof window === "undefined") return;
+      const prefs = await readPreferencesFromClient();
+      prefs.folders = [...(prefs.folders || []), newFolder];
+      if (!prefs.selectedFolderId) {
+        prefs.selectedFolderId = newFolder.id;
+        setSelectedFolderId(newFolder.id);
       }
+      await writePreferencesToClient(prefs);
+      setFolders(prefs.folders);
+      setIsFolderModalOpen(false);
+      showToast("success", "Folder created successfully", 5000);
     } catch (error) {
       console.error("Error creating folder:", error);
       const errorMessage =

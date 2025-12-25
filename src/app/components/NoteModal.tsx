@@ -7,8 +7,6 @@ import BookmarkIcon from "../common/BookmarkIcon";
 import dayjs from "dayjs";
 import { Note, CreateNoteResponse } from "../types";
 import { readPreferencesFromClient, writePreferencesToClient } from "../helpers/userPreference.client";
-import { getUserPreferences, toggleBookmark } from "../actions/dbActions";
-import { isDevelopment } from "../constants";
 
 type NoteModalProps = {
   note: Note | null;
@@ -40,16 +38,10 @@ export default function NoteModal({ note, isOpen, onClose, mode = "view", onCrea
           if (typeof window === "undefined") return;
           
           try {
-            if (isDevelopment) {
-              const data = await getUserPreferences();
-              if (data.bookMarkedCards && Array.isArray(data.bookMarkedCards)) {
-                setIsBookmarked(data.bookMarkedCards.includes(note?.slug || ""));
-              }
-            } else {
-              const prefs = readPreferencesFromClient();
-              if (prefs.bookMarkedCards && Array.isArray(prefs.bookMarkedCards)) {
-                setIsBookmarked(prefs.bookMarkedCards.includes(note?.slug || ""));
-              }
+            if (typeof window === "undefined") return;
+            const prefs = await readPreferencesFromClient();
+            if (prefs.bookMarkedCards && Array.isArray(prefs.bookMarkedCards)) {
+              setIsBookmarked(prefs.bookMarkedCards.includes(note?.slug || ""));
             }
           } catch (err) {
             console.error("Error loading bookmark status:", err);
@@ -79,23 +71,18 @@ export default function NoteModal({ note, isOpen, onClose, mode = "view", onCrea
     setIsBookmarked(newBookmarked);
     
     try {
-      if (isDevelopment) {
-        await toggleBookmark(note.slug, newBookmarked);
-      } else {
-        // In prod, use localStorage
-        if (typeof window === "undefined") return;
-        const prefs = readPreferencesFromClient();
-        
-        if (newBookmarked) {
-          if (!prefs.bookMarkedCards.includes(note.slug)) {
-            prefs.bookMarkedCards.push(note.slug);
-          }
-        } else {
-          prefs.bookMarkedCards = prefs.bookMarkedCards.filter((slug: string) => slug !== note.slug);
+      if (typeof window === "undefined") return;
+      const prefs = await readPreferencesFromClient();
+      
+      if (newBookmarked) {
+        if (!prefs.bookMarkedCards.includes(note.slug)) {
+          prefs.bookMarkedCards.push(note.slug);
         }
-        
-        writePreferencesToClient(prefs);
+      } else {
+        prefs.bookMarkedCards = prefs.bookMarkedCards.filter((slug: string) => slug !== note.slug);
       }
+      
+      await writePreferencesToClient(prefs);
     } catch (error) {
       setIsBookmarked(isBookmarked);
       console.error("Error updating bookmark:", error);
@@ -201,7 +188,7 @@ export default function NoteModal({ note, isOpen, onClose, mode = "view", onCrea
               </div>
             </div>
           ) : (
-            <div className="notion-content text-[#37352f] text-base leading-[1.5] font-sans min-h-[200px]">
+            <div className="notion-content text-[#37352f] text-base leading-[1.5] font-sans min-h-[200px] text-left">
               <CollapsibleMarkdown content={note?.content || ""} />
             </div>
           )}

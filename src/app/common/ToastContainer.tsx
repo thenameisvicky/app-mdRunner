@@ -30,8 +30,8 @@ export function useToast() {
 
 export default function ToastContainer({ toasts, onRemove }: { toasts: ToastItem[]; onRemove: (id: string) => void }) {
   return (
-    <div className="fixed top-20 right-0 z-[10000] pointer-events-none">
-      <div className="flex flex-col gap-2 p-4">
+    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[10000] pointer-events-none">
+      <div className="flex flex-col gap-2 items-center">
         {toasts.map((toast) => (
           <div key={toast.id} className="pointer-events-auto">
             <Toast
