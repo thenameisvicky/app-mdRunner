@@ -1,9 +1,12 @@
+---
+title: AI Engineering
+date: 2025-11-16
+---
+
 # 🧠 AI Engineer Roadmap (Amazon / 20+ LPA Target)
 
 **Goal:** Prepare for AI Engineer roles at Amazon or equivalent Tier-1 companies with a solid 20+ LPA package.  
 **Profile Baseline:** MERN Stack + DevOps background + interest in AI/ML.
-
----
 
 ## 1️⃣ What Is an AI Engineer?
 
@@ -16,8 +19,6 @@ They design, build, and deploy AI-powered systems—integrating models, pipeline
 | **ML / Research Engineer** | Train & optimize models, build data pipelines | AWS SageMaker, large-scale training |
 
 You’ll target **Applied AI Engineer** roles first—best mix of skill & payoff.
-
----
 
 ## 2️⃣ Core Competencies
 
@@ -32,8 +33,6 @@ You’ll target **Applied AI Engineer** roles first—best mix of skill & payoff
 
 - *Mathematics for Machine Learning* (Deisenroth et al.)
 - 3Blue1Brown YouTube playlists (Linear Algebra, Calculus)
-
----
 
 ### ⚙️ Data Structures & Algorithms
 
@@ -52,8 +51,6 @@ For top-tier interviews, master these topics:
 
 ➡️ **~150–180 problems total** = solid Amazon prep.
 
----
-
 ### 🤖 Machine Learning / AI Stack
 
 | Layer | Tools & Concepts |
@@ -64,8 +61,6 @@ For top-tier interviews, master these topics:
 | NLP / LLM | Hugging Face, LangChain basics |
 | MLOps | Docker, CI/CD, MLflow, AWS SageMaker |
 | Cloud AI | AWS Bedrock, Lambda, ECS/EKS |
-
----
 
 ## 3️⃣ Project Roadmap
 
@@ -79,8 +74,6 @@ Build **3–4 solid, demo-ready projects** (with GitHub + README + short blog).
 | **MLOps / Deployment** | Model serving via FastAPI + Docker + CI/CD + AWS | Production ML + DevOps |
 
 > Each project = documented repo + architecture diagram + deployment link.
-
----
 
 ## 4️⃣ 6-Month Preparation Plan
 
@@ -98,8 +91,6 @@ Build **3–4 solid, demo-ready projects** (with GitHub + README + short blog).
 - 🕐 Workdays: 1 hr DSA + 30 min math/ML reading  
 - 🕐 Weekends: 3 hr coding project or math deep dive
 
----
-
 ### 🗓️ Months 3–4: Core ML
 
 - **Goals**
@@ -109,8 +100,6 @@ Build **3–4 solid, demo-ready projects** (with GitHub + README + short blog).
 - Build **Project #1 (Classical ML)**  
 - Continue DSA (DP + Graph focus)
 
----
-
 ### 🗓️ Month 5: Deep Learning & NLP
 
 - **Goals**
@@ -119,8 +108,6 @@ Build **3–4 solid, demo-ready projects** (with GitHub + README + short blog).
 - Study CNN, RNN, Transformer basics
 - Build **Project #2 (NLP or Speech)** using Hugging Face or Whisper
 - Review 30 LeetCode mixed problems
-
----
 
 ### 🗓️ Month 6: MLOps + Interview Prep
 
@@ -132,8 +119,6 @@ Build **3–4 solid, demo-ready projects** (with GitHub + README + short blog).
 - Review behavioral & system design questions  
 - Mock interviews (Pramp, Interviewing.io)
 
----
-
 ## 5️⃣ Interview Prep Focus
 
 | Round | Focus Area | How to Prepare |
@@ -143,16 +128,12 @@ Build **3–4 solid, demo-ready projects** (with GitHub + README + short blog).
 | 4 | Behavioral (Leadership Principles) | STAR method answers |
 | Optional | Case Study | Improve an ML product; talk trade-offs |
 
----
-
 ## 6️⃣ Mindset & Routine
 
 - 🧘‍♂️ **Consistency > Intensity** – small daily progress compounds.  
 - 💬 **Document learning** – share projects, write short posts on LinkedIn.  
 - 🔄 **Iterate** – after 3 months, reassess weak areas.  
 - 🛠️ **Portfolio = proof** – recruiters value public work more than certificates.  
-
----
 
 ## 📚 Suggested Resources
 
@@ -161,8 +142,6 @@ Build **3–4 solid, demo-ready projects** (with GitHub + README + short blog).
 - *System Design Primer* (GitHub)  
 - *Mathematics for ML* (free PDF)  
 - LeetCode / InterviewBit / NeetCode.io  
-
----
 
 ## 🚀 End Goal
 
@@ -175,4 +154,31 @@ By Month 6:
 
 > “Consistency builds mastery. Projects prove it.”
 
----
+7️⃣ How to shape your current project (very important)
+Turn your SageMaker-like project into this:
+
+Training job scheduler
+
+Config-driven pipelines
+
+Artifact storage
+
+Experiment tracking
+
+Resource isolation
+
+Failure recovery
+
+Simple model registry
+
+Then add:
+
+Graph-level optimizations
+
+Execution planning
+
+Memory reuse
+
+Lazy vs eager execution
+
+➡ This is compiler thinking applied to ML infra.

@@ -12,3 +12,13 @@ Modern frameworks abstract the browser’s render loop:
 - **SolidJS / Signals** – Fine-grained reactivity → Direct DOM updates.
 
 All aim to minimize layout recalculation and reduce reflows.
+
+## Upcoming
+
+- Fiber architecture
+- Reconciliation algorithm
+- Batching
+- Hooks implementation
+- Suspense
+- React concurrent mode
+- Scheduler (Lane model)

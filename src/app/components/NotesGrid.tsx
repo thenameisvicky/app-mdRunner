@@ -4,10 +4,8 @@ import { useState, useEffect } from "react";
 import NoteModal from "./NoteModal";
 import Tooltip from "../common/Tooltip";
 import BookmarkIcon from "../common/BookmarkIcon";
-import { isDevelopment } from "@/app/constants";
 import { Note } from "../types";
 import { readPreferencesFromClient, writePreferencesToClient } from "../helpers/userPreference.client";
-import { getUserPreferences, toggleBookmark } from "../actions/dbActions";
 
 type NotesGridProps = {
   notes: Note[];
@@ -23,19 +21,10 @@ export default function NotesGrid({ notes }: NotesGridProps) {
   useEffect(() => {
     const loadBookmarks = async () => {
       try {
-        if (isDevelopment) {
-          // In dev, use server action
-          const data = await getUserPreferences();
-          if (data.bookMarkedCards && Array.isArray(data.bookMarkedCards)) {
-            setBookmarkedNotes(new Set(data.bookMarkedCards));
-          }
-        } else {
-          // In prod, read from localStorage
-          if (typeof window === "undefined") return;
-          const prefs = readPreferencesFromClient();
-          if (prefs.bookMarkedCards && Array.isArray(prefs.bookMarkedCards)) {
-            setBookmarkedNotes(new Set(prefs.bookMarkedCards));
-          }
+        if (typeof window === "undefined") return;
+        const prefs = await readPreferencesFromClient();
+        if (prefs.bookMarkedCards && Array.isArray(prefs.bookMarkedCards)) {
+          setBookmarkedNotes(new Set(prefs.bookMarkedCards));
         }
       } catch (err) {
         console.error("Error loading preferences:", err);
@@ -68,24 +57,18 @@ export default function NotesGrid({ notes }: NotesGridProps) {
     setBookmarkedNotes(newBookmarkedSet);
 
     try {
-      if (isDevelopment) {
-        // In dev, use server action
-        await toggleBookmark(note.slug, newBookmarked);
-      } else {
-        // In prod, use localStorage
-        if (typeof window === "undefined") return;
-        const prefs = readPreferencesFromClient();
-        
-        if (newBookmarked) {
-          if (!prefs.bookMarkedCards.includes(note.slug)) {
-            prefs.bookMarkedCards.push(note.slug);
-          }
-        } else {
-          prefs.bookMarkedCards = prefs.bookMarkedCards.filter((slug: string) => slug !== note.slug);
+      if (typeof window === "undefined") return;
+      const prefs = await readPreferencesFromClient();
+      
+      if (newBookmarked) {
+        if (!prefs.bookMarkedCards.includes(note.slug)) {
+          prefs.bookMarkedCards.push(note.slug);
         }
-        
-        writePreferencesToClient(prefs);
+      } else {
+        prefs.bookMarkedCards = prefs.bookMarkedCards.filter((slug: string) => slug !== note.slug);
       }
+      
+      await writePreferencesToClient(prefs);
     } catch (error) {
       setBookmarkedNotes(bookmarkedNotes);
       console.error("Error updating bookmark:", error);
