@@ -1,12 +1,9 @@
-"use server";
-
 import { Note } from "@/app/types";
 import path from "path";
 import fs from "fs";
 import matter from "gray-matter";
 import dayjs from "dayjs";
 
-//ToDo - Need to make this configurable via backend userPreference file
 const vaultPath = path.join(process.cwd(), "vault");
 
 export async function getAllNotes(): Promise<Note[]> {

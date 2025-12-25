@@ -12,6 +12,7 @@
   "dependencies": {
     "dayjs": "^1.11.19",
     "gray-matter": "^4.0.3",
+    "indexdb-action": "git+https://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@github.com/thenameisvicky/indexdb-helper-ts.git",
     "marked": "^15.0.12",
     "next": "15.5.4",
     "react": "19.1.0",
